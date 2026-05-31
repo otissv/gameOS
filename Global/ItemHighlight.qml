@@ -100,6 +100,13 @@ id: root
     id: videocontainer
 
         anchors.fill: parent
+        anchors.margins: boxArt ? vpx(6) : 0
+
+        Rectangle {
+            anchors.fill: parent
+            radius: vpx(10)
+            clip: true
+            color: "transparent"
 
         // Video
         Loader {
@@ -107,6 +114,8 @@ id: root
 
             asynchronous: true
             anchors { fill: parent }
+        }
+
         }
     }
 }

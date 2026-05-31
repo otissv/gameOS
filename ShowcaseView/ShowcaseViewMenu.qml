@@ -35,6 +35,7 @@ id: root
     ListLastPlayed  { id: listLastPlayed;  max: settings.ShowcaseColumns }
     ListMostPlayed  { id: listMostPlayed;  max: settings.ShowcaseColumns }
     ListRecommended { id: listRecommended; max: settings.ShowcaseColumns }
+    ListKidsOnly    { id: listKidsOnly;    max: settings.ShowcaseColumns }
     ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub }
     ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre }
 
@@ -83,6 +84,9 @@ id: root
                 break;
             case "Recommended":
                 collection.search = listRecommended;
+                break;
+            case "Kids":
+                collection.search = listKidsOnly;
                 break;
             case "Top by Publisher":
                 collection.search = listPublisher;
@@ -437,8 +441,9 @@ id: root
 
             Component.onCompleted: positionViewAtIndex(savedIndex, ListView.End)
 
-            model: api.collections//Utils.reorderCollection(api.collections);
+            model: platformCollectionCount
             delegate: Rectangle {
+                property var modelData: platformAt(index)
                 property bool selected: ListView.isCurrentItem && platformlist.focus
                 width: (root.width - globalMargin * 2) / 7.0
                 height: width * settings.WideRatio

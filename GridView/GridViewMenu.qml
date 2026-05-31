@@ -132,7 +132,10 @@ id: root
         return true;
     }
 
-    ListCollectionGames { id: list; }
+    ListCollectionGames {
+        id: list
+        isKidsCollection: Utils.isKidsCollectionIndex(currentCollectionIndex)
+    }
 
     // Load settings
     property bool showBoxes: settings.GridThumbnail === "Box Art"
@@ -411,7 +414,7 @@ id: root
         // Next collection
         if (api.keys.isNextPage(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            if (currentCollectionIndex < api.collections.count-1)
+            if (currentCollectionIndex < platformCollectionCount - 1)
                 currentCollectionIndex++;
             else
                 currentCollectionIndex = 0;
@@ -430,7 +433,7 @@ id: root
             if (currentCollectionIndex > 0)
                 currentCollectionIndex--;
             else
-                currentCollectionIndex = api.collections.count-1;
+                currentCollectionIndex = platformCollectionCount - 1;
 
             gamegrid.currentIndex = 0;
             sfxToggle.play();

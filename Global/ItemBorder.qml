@@ -20,27 +20,37 @@ import QtGraphicalEffects 1.0
 Item {
 id: root
 
-    Image {
-    id: border
+    property int cornerRadius: vpx(10)
 
+    Rectangle {
+        id: clipShape
         anchors.fill: parent
-        source: "../assets/images/gradient.png"
-        asynchronous: true
-        visible: false
-        
-        // Highlight animation (ColorOverlay causes graphical glitches on W10)
-        Rectangle {
-            anchors.fill: parent
-            color: "#fff"
-            visible: settings.AnimateHighlight === "Yes"
-            SequentialAnimation on opacity {
-            id: colorAnim
+        radius: cornerRadius
+        clip: true
+        color: "transparent"
 
-                running: true
-                loops: Animation.Infinite
-                NumberAnimation { to: 1; duration: 200; }
-                NumberAnimation { to: 0; duration: 500; }
-                PauseAnimation { duration: 200 }
+        Image {
+        id: border
+
+            anchors.fill: parent
+            source: "../assets/images/gradient.png"
+            asynchronous: true
+            visible: false
+            
+            // Highlight animation (ColorOverlay causes graphical glitches on W10)
+            Rectangle {
+                anchors.fill: parent
+                color: "#fff"
+                visible: settings.AnimateHighlight === "Yes"
+                SequentialAnimation on opacity {
+                id: colorAnim
+
+                    running: true
+                    loops: Animation.Infinite
+                    NumberAnimation { to: 1; duration: 200; }
+                    NumberAnimation { to: 0; duration: 500; }
+                    PauseAnimation { duration: 200 }
+                }
             }
         }
     }
@@ -60,6 +70,15 @@ id: root
         anchors.fill: border
         source: border
         maskSource: mask
+        visible: false
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        radius: cornerRadius
+        color: "transparent"
+        border.width: vpx(2)
+        border.color: theme.accent
         visible: selected
     }
 
@@ -76,7 +95,7 @@ id: root
         radius: height/2
         opacity: selected ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 100 } }
-        visible: opacity !== 0
+        visible: false
 
         Text {
         id: bubbletitle

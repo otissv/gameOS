@@ -87,6 +87,12 @@ id: root
         anchors.fill: parent
         Behavior on opacity { NumberAnimation { duration: 200 } }
 
+        Rectangle {
+            anchors.fill: parent
+            radius: vpx(10)
+            clip: true
+            color: "transparent"
+
         Image {
         id: screenshot
 
@@ -123,6 +129,7 @@ id: root
             anchors.fill: parent
             color: screenshot.source == "" ? theme.secondary : "black"
             opacity: screenshot.source == "" ? 1 : selected ? 0.1 : 0.2
+            radius: vpx(10)
         }
         
         Rectangle {
@@ -133,6 +140,16 @@ id: root
             border.width: vpx(1)
             border.color: "white"
             opacity: 0.1
+            radius: vpx(10)
+        }
+
+        AgeRatingBadge {
+            gameData: root.gameData
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: vpx(7)
+        }
+
         }
         
     }

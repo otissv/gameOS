@@ -24,6 +24,8 @@ import "Global"
 import "GameDetails"
 import "ShowcaseView"
 import "Settings"
+import "Lists"
+import "utils.js" as Utils
 
 FocusScope {
 id: root
@@ -74,8 +76,17 @@ id: root
     // Collections
     property int currentCollectionIndex: 0
     property int currentGameIndex: 0
-    property var currentCollection: api.collections.get(currentCollectionIndex)    
+    property bool isKidsCollection: Utils.isKidsCollectionIndex(currentCollectionIndex)
+    property int platformCollectionCount: Utils.platformCollectionCount(api.collections.count)
+    function platformAt(index) {
+        if (Utils.isKidsCollectionIndex(index))
+            return kidsCollectionView.collection;
+        return api.collections.get(index - 1);
+    }
+    property var currentCollection: platformAt(currentCollectionIndex)
     property var currentGame
+
+    ListKidsOnly { id: kidsCollectionView }
 
     // Stored variables for page navigation
     property int storedHomePrimaryIndex: 0

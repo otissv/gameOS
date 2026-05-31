@@ -100,6 +100,18 @@ id: root
                     anchors.margins: vpx(4)            
                 }
             }
+
+            Item {
+                width: screenshot.paintedWidth
+                height: screenshot.paintedHeight
+                anchors.centerIn: parent
+
+                AgeRatingBadge {
+                    gameData: root.gameData
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                }
+            }
         }
 
         Rectangle {
@@ -108,8 +120,8 @@ id: root
             anchors.fill: parent
             color: "transparent"
             border.width: vpx(1)
-            border.color: "white"
-            opacity: 0.1
+            border.color: "transparent"
+            opacity: 0.
             visible: false
         }
 

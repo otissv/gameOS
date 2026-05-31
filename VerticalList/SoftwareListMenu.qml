@@ -17,12 +17,19 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.11
 import "../Global"
+import "../Lists"
+import "../utils.js" as Utils
 
 FocusScope {
 id: root
 
     property real itemheight: vpx(50)
     property int skipnum: 10
+
+    ListCollectionGames {
+        id: list
+        isKidsCollection: Utils.isKidsCollectionIndex(currentCollectionIndex)
+    }
 
     Image {
     id: screenshot
@@ -67,8 +74,10 @@ id: root
 
         currentIndex: currentGameIndex
         onCurrentIndexChanged: {
-            if (currentIndex != -1)
+            if (currentIndex != -1) {
                 currentGameIndex = currentIndex;
+                currentGame = list.currentGame(currentIndex);
+            }
         }
 
         focus: true
@@ -89,7 +98,7 @@ id: root
         highlightMoveDuration: 100
         clip: true
 
-        model: currentCustomCollection.games
+        model: list.games
         delegate: softwarelistdelegate
 
         // List item
@@ -137,9 +146,10 @@ id: root
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        if (selected)
-                            launchGame();
-                        else
+                        if (selected) {
+                            currentGame = list.currentGame(softwarelist.currentIndex);
+                            launchGame(currentGame);
+                        } else
                             softwarelist.currentIndex = index
                     }
                 }
@@ -182,7 +192,8 @@ id: root
         if (api.keys.isAccept(event) && !event.isAutoRepeat) {
             event.accepted = true;
             if (softwarelist.focus) {
-                launchGame();
+                currentGame = list.currentGame(softwarelist.currentIndex);
+                launchGame(currentGame);
             } else {
                 currentGameIndex = 0;
                 softwarelist.focus = true;
@@ -207,7 +218,7 @@ id: root
         // Details
         if (api.keys.isDetails(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            toggleSort();
+            cycleSort();
         }
     }
 

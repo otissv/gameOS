@@ -417,3 +417,83 @@ function shuffleArray(array) {
 function returnRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
+
+// Age rating codes
+// 3+
+// 7+
+// 12+
+// 16+
+// 18+
+// EC - Early Childhood
+// E - Everyone
+// E10+ - Everyone 10+
+// T - Teen
+// M - Mature 17+
+// RP - Rating Pending
+// Not Rated
+
+function ageRatingText(game) {
+  if (!game || !game.extra)
+    return "";
+  var rating = game.extra["age-rating"];
+  if (rating === undefined || rating === null)
+    return "";
+  rating = rating.toString().trim();
+  return rating ? rating : "";
+}
+
+// PEGI-style numeric ratings only (e.g. "12+", "16", "18") — not "E10+"
+function pegiNumericAge(rating) {
+  var r = (rating || "").toString().trim();
+  var m = r.match(/^(\d+)\+?$/);
+  if (m)
+    return parseInt(m[1], 10);
+  return -1;
+}
+
+function ageCategory(rating) {
+  var r = (rating || "").toString().trim();
+  if (!r)
+    return "";
+
+  var lower = r.toLowerCase();
+  if (lower.indexOf("mature") >= 0 || r === "M - Mature 17+" || r === "18+" || r === "18")
+    return "18+";
+
+  var age = pegiNumericAge(r);
+  if (age >= 18)
+    return "18+";
+  if (age >= 16)
+    return "16+";
+
+  if (r)
+    return "Kids";
+  return "";
+}
+
+function ageRatingColor(rating) {
+  var cat = ageCategory(rating);
+  if (cat === "18+")
+    return "red";
+  if (cat === "16+")
+    return "orange";
+  if (cat)
+    return "green";
+  return "transparent";
+}
+
+function isKidsOnlyGame(game) {
+  return ageCategory(ageRatingText(game)) === "Kids";
+}
+
+function kidsCollectionInfo() {
+  return { name: "Kids", shortName: "kids" };
+}
+
+function isKidsCollectionIndex(index) {
+  return index === 0;
+}
+
+function platformCollectionCount(apiCollectionCount) {
+  return apiCollectionCount + 1;
+}

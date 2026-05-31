@@ -16,34 +16,40 @@
 
 import QtQuick 2.0
 import SortFilterProxyModel 0.2
+import "../utils.js" as Utils
 
 Item {
 id: root
 
-    property bool isKidsCollection: false
     readonly property alias games: gamesFiltered
-    property var collection: isKidsCollection
-        ? currentCollection
-        : api.collections.get(currentCollectionIndex - 1)
     function currentGame(index) {
-        var idx = gamesFiltered.mapToSource(index);
-        if (isKidsCollection)
-            idx = currentCollection.games.mapToSource(idx);
-        return isKidsCollection ? api.allGames.get(idx) : collection.games.get(idx);
+        return api.allGames.get(kidsOnlyGames.mapToSource(gamesFiltered.mapToSource(index)));
     }
-    property int max
+    function isKidsOnlyAt(index) {
+        return Utils.isKidsOnlyGame(api.allGames.get(index));
+    }
+    property int max: kidsOnlyGames.count
+
+    SortFilterProxyModel {
+    id: kidsOnlyGames
+
+        sourceModel: api.allGames
+        filters: ExpressionFilter {
+            expression: root.isKidsOnlyAt(model.index)
+        }
+        sorters: RoleSorter { roleName: "title"; sortOrder: Qt.AscendingOrder }
+    }
 
     SortFilterProxyModel {
     id: gamesFiltered
 
-        sourceModel: collection.games
-        filters: [
-            ValueFilter { roleName: "favorite"; value: true; enabled: showFavs },
-            RegExpFilter { roleName: "title"; pattern: searchTerm; caseSensitivity: Qt.CaseInsensitive; enabled: searchTerm != "" },
-            IndexFilter { maximumIndex: max - 1; enabled: max }
-        ]
-        sorters: [
-            RoleSorter { roleName: sortByFilter[sortByIndex]; sortOrder: orderBy }
-        ]
+        sourceModel: kidsOnlyGames
+        filters: IndexFilter { maximumIndex: max - 1 }
+    }
+
+    property var collection: {
+        var info = Utils.kidsCollectionInfo();
+        info.games = gamesFiltered;
+        return info;
     }
 }
