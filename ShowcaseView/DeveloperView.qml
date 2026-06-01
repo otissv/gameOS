@@ -15,7 +15,7 @@ FocusScope {
 id: root
 
     function currentList() {
-        return genreList.currentIndex === 0 ? listAll : listGenre;
+        return developerList.currentIndex === 0 ? listAll : listDeveloper;
     }
 
     function gameActivated() {
@@ -39,7 +39,7 @@ id: root
     }
 
     function beginTriggerLetterScroll(direction) {
-        if (genreList.activeFocus) {
+        if (developerList.activeFocus) {
             return;
         }
 
@@ -114,7 +114,7 @@ id: root
             return false;
         }
 
-        if (genreList.activeFocus) {
+        if (developerList.activeFocus) {
             return false;
         }
 
@@ -181,12 +181,12 @@ id: root
         return true;
     }
 
-    property int storedGenreIndex: 0
-    property int storedGenreGameIndex: 0
+    property int storedDeveloperIndex: 0
+    property int storedDeveloperGameIndex: 0
     property int numColumns: settings.GridColumns ? settings.GridColumns : 6
     property int titleMargin: settings.AlwaysShowTitles === "Yes" ? vpx(30) : 0
-    property real genreItemHeight: vpx(50)
-    property var genreNames: ["All Games"].concat(Utils.uniqueGameValues('genreList', isKidsView))
+    property real developerItemHeight: vpx(50)
+    property var developerNames: ["All Games"].concat(Utils.uniqueGameValues('developerList', isKidsView))
 
     ListAllGames {
         id: listAll
@@ -194,10 +194,10 @@ id: root
         kidsOnly: isKidsView
     }
 
-    ListGenre {
-        id: listGenre
+    ListDeveloper {
+        id: listDeveloper
         max: api.allGames.count
-        genre: genreList.currentIndex > 0 ? genreNames[genreList.currentIndex] : ""
+        developer: developerList.currentIndex > 0 ? developerNames[developerList.currentIndex] : ""
         kidsOnly: isKidsView
     }
 
@@ -248,16 +248,16 @@ id: root
         id: headercontainer
 
             anchors.fill: parent
-            titleText: genreNames[genreList.currentIndex]
+            titleText: developerNames[developerList.currentIndex]
         }
         Keys.onDownPressed: {
             sfxNav.play();
-            genreList.focus = true;
+            developerList.focus = true;
         }
     }
 
     Item {
-    id: genreContainer
+    id: developerContainer
 
         anchors {
             top: header.bottom; topMargin: globalMargin
@@ -267,13 +267,13 @@ id: root
         }
 
         ListView {
-        id: genreList
+        id: developerList
 
             clip: true
             spacing: 0
             orientation: ListView.Vertical
-            model: genreNames
-            currentIndex: storedGenreIndex
+            model: developerNames
+            currentIndex: storedDeveloperIndex
 
             anchors {
                 top: parent.top
@@ -282,22 +282,22 @@ id: root
             }
             width: vpx(300)
 
-            preferredHighlightBegin: height / 2 - genreItemHeight
+            preferredHighlightBegin: height / 2 - developerItemHeight
             preferredHighlightEnd: height / 2
             highlightRangeMode: ListView.ApplyRange
             highlightMoveDuration: 100
 
             onCurrentIndexChanged: {
-                storedGenreIndex = currentIndex;
+                storedDeveloperIndex = currentIndex;
                 gamegrid.currentIndex = 0;
                 sortedGames = null;
             }
 
             delegate: Item {
                 width: ListView.view.width
-                height: genreItemHeight
+                height: developerItemHeight
                 property bool selected: ListView.isCurrentItem
-                property bool highlighted: selected && genreList.focus
+                property bool highlighted: selected && developerList.focus
 
                 Rectangle {
                     width: vpx(3)
@@ -329,7 +329,7 @@ id: root
                     anchors.fill: parent
                     onClicked: {
                         sfxNav.play();
-                        genreList.currentIndex = index;
+                        developerList.currentIndex = index;
                         if (selected)
                             gamegrid.forceActiveFocus();
                     }
@@ -365,9 +365,9 @@ id: root
 
         Rectangle {
             anchors {
-                left: genreList.right
-                top: genreList.top
-                bottom: genreList.bottom
+                left: developerList.right
+                top: developerList.top
+                bottom: developerList.bottom
             }
             width: vpx(1)
             color: theme.text
@@ -380,7 +380,7 @@ id: root
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: genreList.right; leftMargin: globalMargin
+                left: developerList.right; leftMargin: globalMargin
                 right: parent.right
             }
 
@@ -398,7 +398,7 @@ id: root
                 }
 
                 Component.onCompleted: {
-                    currentIndex = storedGenreGameIndex;
+                    currentIndex = storedDeveloperGameIndex;
                     positionViewAtIndex(currentIndex, GridView.Visible);
                 }
 
@@ -417,7 +417,7 @@ id: root
                 displayMarginBeginning: cellHeight * 2
                 displayMarginEnd: cellHeight * 2
 
-                model: genreList.currentIndex === 0 ? listAll.games : listGenre.games
+                model: developerList.currentIndex === 0 ? listAll.games : listDeveloper.games
                 delegate: dynamicDelegate
 
                 Component {
@@ -464,7 +464,7 @@ id: root
                 Keys.onUpPressed: {
                     sfxNav.play();
                     if (currentIndex < numColumns) {
-                        genreList.focus = true;
+                        developerList.focus = true;
                         gamegrid.currentIndex = -1;
                     } else {
                         moveCurrentIndexUp();
@@ -474,7 +474,7 @@ id: root
                 Keys.onLeftPressed: {
                     sfxNav.play();
                     if (currentIndex % numColumns === 0) {
-                        genreList.focus = true;
+                        developerList.focus = true;
                         gamegrid.currentIndex = -1;
                     } else {
                         moveCurrentIndexLeft();
@@ -516,12 +516,12 @@ id: root
             event.accepted = true;
             if (gamegrid.activeFocus) {
                 gameActivated();
-            } else if (genreList.focus) {
+            } else if (developerList.focus) {
                 sfxAccept.play();
                 gamegrid.forceActiveFocus();
                 gamegrid.currentIndex = 0;
             } else {
-                genreList.focus = true;
+                developerList.focus = true;
             }
             return;
         }
@@ -529,19 +529,19 @@ id: root
         if (api.keys.isCancel(event) && !event.isAutoRepeat) {
             event.accepted = true;
             if (gamegrid.activeFocus) {
-                storedGenreGameIndex = gamegrid.currentIndex;
-                genreList.focus = true;
-            } else if (genreList.focus) {
+                storedDeveloperGameIndex = gamegrid.currentIndex;
+                developerList.focus = true;
+            } else if (developerList.focus) {
                 previousScreen();
             } else {
-                genreList.focus = true;
+                developerList.focus = true;
             }
             return;
         }
     }
 
     ListModel {
-        id: genreHelpModel
+        id: developerHelpModel
 
         ListElement { name: "Back"; button: "cancel" }
         ListElement { name: "Toggle favorite"; button: "details" }
@@ -550,9 +550,9 @@ id: root
 
     onFocusChanged: {
         if (focus) {
-            currentHelpbarModel = genreHelpModel;
-            if (!genreList.focus && !gamegrid.focus)
-                genreList.focus = true;
+            currentHelpbarModel = developerHelpModel;
+            if (!developerList.focus && !gamegrid.focus)
+                developerList.focus = true;
         }
     }
 }

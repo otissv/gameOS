@@ -233,6 +233,9 @@ id: root
             name: "genrescreen";
         },
         State {
+            name: "developerscreen";
+        },
+        State {
             name: "launchgamescreen";
         }
     ]
@@ -293,6 +296,12 @@ id: root
         sfxAccept.play();
         lastState.push(state);
         root.state = "genrescreen";
+    }
+
+    function developerScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        root.state = "developerscreen";
     }
 
     function launchGameScreen() {
@@ -442,6 +451,19 @@ id: root
         asynchronous: true
     }
 
+    Loader  {
+    id: developerloader
+
+        focus: (root.state === "developerscreen")
+        active: opacity !== 0
+        opacity: focus ? 1 : 0
+        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
+
+        anchors.fill: parent
+        sourceComponent: developerview
+        asynchronous: true
+    }
+
     Component {
     id: showcaseview
 
@@ -491,6 +513,12 @@ id: root
     id: genreview
 
         GenreView { focus: true }
+    }
+
+    Component {
+    id: developerview
+
+        DeveloperView { focus: true }
     }
 
     

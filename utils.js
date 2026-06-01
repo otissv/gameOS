@@ -420,6 +420,38 @@ function gameHasGenre(game, genreName) {
   });
 }
 
+function developerListFromGame(game) {
+  if (!game)
+    return [];
+  var seen = {};
+  var list = [];
+  function addItems(items) {
+    items.forEach(function(item) {
+      var key = item.toLowerCase();
+      if (item.length && !seen[key]) {
+        seen[key] = true;
+        list.push(item);
+      }
+    });
+  }
+  if (game.developer)
+    addItems(parseDelimitedList(game.developer));
+  if (game.developerList && game.developerList.length)
+    game.developerList.forEach(function(d) { addItems(parseDelimitedList(d)); });
+  return list;
+}
+
+function gameHasDeveloper(game, developerName) {
+  if (!game || !developerName)
+    return false;
+  var target = developerName.toString().trim().toLowerCase();
+  if (!target)
+    return false;
+  return developerListFromGame(game).some(function(d) {
+    return d.toLowerCase() === target;
+  });
+}
+
 function uniqueGameValues(fieldName, kidsOnly) {
   const set = new Set();
   api.allGames.toVarArray().forEach(game => {
@@ -427,6 +459,8 @@ function uniqueGameValues(fieldName, kidsOnly) {
       return;
     if (fieldName === 'genreList') {
       genreListFromGame(game).forEach(v => set.add(v));
+    } else if (fieldName === 'developerList') {
+      developerListFromGame(game).forEach(v => set.add(v));
     } else if (game[fieldName]) {
       game[fieldName].forEach(v => set.add(v));
     }

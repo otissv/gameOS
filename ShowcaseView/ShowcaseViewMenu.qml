@@ -348,7 +348,7 @@ id: root
             width: vpx(80)
             height: vpx(40)
             anchors {
-                right: settingsbutton.left
+                right: developerbutton.left
                 rightMargin: vpx(10)
             }
             color: focus ? theme.accent : "transparent"
@@ -381,7 +381,7 @@ id: root
             }
             Keys.onRightPressed: {
                 sfxNav.play()
-                settingsbutton.forceActiveFocus()
+                developerbutton.forceActiveFocus()
             }
             Keys.onPressed: {
                 if (api.keys.isAccept(event) && !event.isAutoRepeat) {
@@ -400,6 +400,64 @@ id: root
                 onEntered: genrebutton.forceActiveFocus()
                 onExited: genrebutton.focus = false
                 onClicked: genreScreen()
+            }
+        }
+
+        Rectangle {
+        id: developerbutton
+
+            width: vpx(100)
+            height: vpx(40)
+            anchors {
+                right: settingsbutton.left
+                rightMargin: vpx(10)
+            }
+            color: focus ? theme.accent : "transparent"
+            radius: height / 2
+            anchors.verticalCenter: parent.verticalCenter
+            onFocusChanged: {
+                sfxNav.play()
+                if (focus)
+                    mainList.currentIndex = -1
+                else
+                    mainList.currentIndex = 0
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: "Developer"
+                color: focus ? theme.accent : "white"
+                font.family: subtitleFont.name
+                font.pixelSize: vpx(14)
+                font.bold: true
+            }
+
+            Keys.onDownPressed: mainList.forceActiveFocus()
+            Keys.onLeftPressed: {
+                sfxNav.play()
+                genrebutton.forceActiveFocus()
+            }
+            Keys.onRightPressed: {
+                sfxNav.play()
+                settingsbutton.forceActiveFocus()
+            }
+            Keys.onPressed: {
+                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    developerScreen()
+                }
+                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    mainList.forceActiveFocus()
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: settings.MouseHover == "Yes"
+                onEntered: developerbutton.forceActiveFocus()
+                onExited: developerbutton.focus = false
+                onClicked: developerScreen()
             }
         }
 
@@ -424,7 +482,7 @@ id: root
             Keys.onDownPressed: mainList.forceActiveFocus();
             Keys.onLeftPressed: {
                 sfxNav.play();
-                genrebutton.forceActiveFocus();
+                developerbutton.forceActiveFocus();
             }
             Keys.onPressed: {
                 // Accept

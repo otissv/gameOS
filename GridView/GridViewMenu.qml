@@ -38,6 +38,44 @@ id: root
     property bool isLeftTriggerPressed: false;
     property bool isRightTriggerPressed: false;
 
+    Timer {
+        id: letterScrollRepeatTimer
+        interval: 300
+        repeat: true
+        property int scrollDirection: 0
+        onTriggered: navigateToNextLetter(scrollDirection)
+    }
+
+    function beginTriggerLetterScroll(direction) {
+        if (direction > 0) {
+            if (isRightTriggerPressed) {
+                return;
+            }
+            isRightTriggerPressed = true;
+        } else {
+            if (isLeftTriggerPressed) {
+                return;
+            }
+            isLeftTriggerPressed = true;
+        }
+
+        letterScrollRepeatTimer.scrollDirection = direction;
+        navigateToNextLetter(direction);
+        letterScrollRepeatTimer.start();
+    }
+
+    function endTriggerLetterScroll(direction) {
+        if (direction > 0) {
+            isRightTriggerPressed = false;
+        } else {
+            isLeftTriggerPressed = false;
+        }
+
+        if (!isRightTriggerPressed && !isLeftTriggerPressed) {
+            letterScrollRepeatTimer.stop();
+        }
+    }
+
     function nextChar(c, modifier) {
         const firstAlpha = 97;
         const lastAlpha = 122;
@@ -64,11 +102,8 @@ id: root
     }
 
     function navigateToNextLetter(modifier) {
-        if (isRightTriggerPressed || isLeftTriggerPressed) {
-            return false;
-        }
-
         if (sortByFilter[sortByIndex] !== "sortBy") {
+            endTriggerLetterScroll(modifier);
             return false;
         }
 
@@ -363,14 +398,14 @@ id: root
         // Scroll Down
         if (api.keys.isPageDown(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            isRightTriggerPressed = false;
+            endTriggerLetterScroll(+1);
             return;
         }
 
         // Scroll Up
         if (api.keys.isPageUp(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            isLeftTriggerPressed = false;
+            endTriggerLetterScroll(-1);
             return;
         }
     }
@@ -410,14 +445,14 @@ id: root
         // Scroll Down
         if (api.keys.isPageDown(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            isRightTriggerPressed = navigateToNextLetter(+1) ? true : isRightTriggerPressed;
+            beginTriggerLetterScroll(+1);
             return;
         }
 
         // Scroll Up
         if (api.keys.isPageUp(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            isLeftTriggerPressed = navigateToNextLetter(-1) ? true : isLeftTriggerPressed;
+            beginTriggerLetterScroll(-1);
             return;
         }
 
