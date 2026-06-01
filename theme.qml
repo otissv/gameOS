@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -231,6 +231,9 @@ id: root
             name: "settingsscreen";
         },
         State {
+            name: "genrescreen";
+        },
+        State {
             name: "launchgamescreen";
         }
     ]
@@ -277,6 +280,12 @@ id: root
         sfxAccept.play();
         lastState.push(state);
         root.state = "settingsscreen";
+    }
+
+    function genreScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        root.state = "genrescreen";
     }
 
     function launchGameScreen() {
@@ -397,6 +406,19 @@ id: root
         asynchronous: true
     }
 
+    Loader  {
+    id: genreloader
+
+        focus: (root.state === "genrescreen")
+        active: opacity !== 0
+        opacity: focus ? 1 : 0
+        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
+
+        anchors.fill: parent
+        sourceComponent: genreview
+        asynchronous: true
+    }
+
     Component {
     id: showcaseview
 
@@ -434,6 +456,12 @@ id: root
     id: settingsview
 
         SettingsScreen { focus: true }
+    }
+
+    Component {
+    id: genreview
+
+        GenreView { focus: true }
     }
 
     

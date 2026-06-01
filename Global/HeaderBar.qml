@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ FocusScope {
 id: root
 
     property bool searchActive
+    property string titleText: ""
 
     onFocusChanged: buttonbar.currentIndex = 0;
 
@@ -66,6 +67,8 @@ id: root
             anchors.fill: logobg
             source: logobg
             maskSource: platformlogo
+            visible: titleText === ""
+
             // Mouse/touch functionality
             MouseArea {
                 anchors.fill: parent
@@ -78,7 +81,7 @@ id: root
         Text {
         id: softwareplatformtitle
             
-            text: currentCollection.name
+            text: titleText !== "" ? titleText : currentCollection.name
             
             anchors {
                 top:    parent.top;
@@ -94,7 +97,7 @@ id: root
             horizontalAlignment: Text.AlignHLeft
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
-            visible: platformlogo.status == Image.Error
+            visible: titleText !== "" || platformlogo.status == Image.Error
 
             // Mouse/touch functionality
             MouseArea {
@@ -112,6 +115,8 @@ id: root
             id: searchbar
                 
                 property bool selected: ListView.isCurrentItem && root.focus
+                property bool mouseHovered: false
+                property bool highlighted: selected || mouseHovered
                 onSelectedChanged: if (!selected && searchActive) toggleSearch();
 
                 width: (searchActive || searchTerm != "") ? vpx(250) : height
@@ -124,9 +129,9 @@ id: root
                 Rectangle {
                     width: parent.width
                     height: parent.height
-                    color: searchbar.selected && !searchActive ? theme.accent : "white"
+                    color: searchbar.highlighted && !searchActive ? theme.accent : "white"
                     radius: height/2
-                    opacity: searchbar.selected && !searchActive ? 1 : searchActive ? 0.4 : 0.2
+                    opacity: searchbar.highlighted && !searchActive ? 1 : searchActive ? 0.4 : 0.2
 
                 }
 
@@ -140,7 +145,7 @@ id: root
                         top: parent.top; topMargin: vpx(10)
                     }
                     source: "../assets/images/searchicon.svg"
-                    opacity: searchbar.selected && !searchActive ? 1 : searchActive ? 0.8 : 0.5
+                    opacity: searchbar.highlighted && !searchActive ? 1 : searchActive ? 0.8 : 0.5
                     asynchronous: true
                 }
 
@@ -169,8 +174,8 @@ id: root
                     anchors.fill: parent
                     enabled: !searchActive
                     hoverEnabled: true
-                    onEntered: {}
-                    onExited: {}
+                    onEntered: searchbar.mouseHovered = true
+                    onExited: searchbar.mouseHovered = false
                     onClicked: {
                         if (!searchActive)
                         {
@@ -199,6 +204,8 @@ id: root
             id: directionbutton
 
                 property bool selected: ListView.isCurrentItem && root.focus
+                property bool mouseHovered: false
+                property bool highlighted: selected || mouseHovered
                 width: directiontitle.contentWidth + vpx(30)
                 height: searchbar.height
 
@@ -207,7 +214,7 @@ id: root
                     anchors.fill: parent
                     radius: height/2
                     color: theme.accent
-                    visible: directionbutton.selected
+                    visible: directionbutton.highlighted
                 }
 
                 Text {
@@ -220,6 +227,14 @@ id: root
                     font.pixelSize: vpx(18)
                     anchors.centerIn: parent
                     elide: Text.ElideRight
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: directionbutton.mouseHovered = true
+                    onExited: directionbutton.mouseHovered = false
+                    onClicked: toggleOrderBy();
                 }
 
                 Keys.onPressed: {
@@ -236,6 +251,8 @@ id: root
             id: titlebutton
 
                 property bool selected: ListView.isCurrentItem && root.focus
+                property bool mouseHovered: false
+                property bool highlighted: selected || mouseHovered
                 width: ordertitle.contentWidth + vpx(30)
                 height: searchbar.height
 
@@ -244,7 +261,7 @@ id: root
                     anchors.fill: parent
                     radius: height/2
                     color: theme.accent
-                    visible: titlebutton.selected
+                    visible: titlebutton.highlighted
                 }
 
                 Text {
@@ -257,6 +274,14 @@ id: root
                     font.pixelSize: vpx(18)
                     anchors.centerIn: parent
                     elide: Text.ElideRight
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: titlebutton.mouseHovered = true
+                    onExited: titlebutton.mouseHovered = false
+                    onClicked: cycleSort();
                 }
 
                 Keys.onPressed: {
@@ -273,6 +298,8 @@ id: root
             id: filterbutton
 
                 property bool selected: ListView.isCurrentItem && root.focus
+                property bool mouseHovered: false
+                property bool highlighted: selected || mouseHovered
                 width: filtertitle.contentWidth + vpx(30)
                 height: searchbar.height
 
@@ -281,7 +308,7 @@ id: root
                     anchors.fill: parent
                     radius: height/2
                     color: theme.accent
-                    visible: filterbutton.selected
+                    visible: filterbutton.highlighted
                 }
                 
                 // Filter title
@@ -295,6 +322,14 @@ id: root
                     font.pixelSize: vpx(18)
                     anchors.centerIn: parent
                     elide: Text.ElideRight
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: filterbutton.mouseHovered = true
+                    onExited: filterbutton.mouseHovered = false
+                    onClicked: toggleFavs();
                 }
 
                 Keys.onPressed: {

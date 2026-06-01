@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -230,6 +230,60 @@ id: root
         }
 
         Rectangle {
+        id: genrebutton
+
+            width: vpx(80)
+            height: vpx(40)
+            anchors {
+                right: settingsbutton.left
+                rightMargin: vpx(10)
+            }
+            color: focus ? theme.accent : "transparent"
+            radius: height / 2
+            anchors.verticalCenter: parent.verticalCenter
+            onFocusChanged: {
+                sfxNav.play()
+                if (focus)
+                    mainList.currentIndex = -1
+                else
+                    mainList.currentIndex = 0
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: "Genre"
+                 color: focus ? theme.accent : "white"
+                font.family: subtitleFont.name
+                font.pixelSize: vpx(14)
+                font.bold: true
+            }
+
+            Keys.onDownPressed: mainList.forceActiveFocus()
+            Keys.onRightPressed: {
+                sfxNav.play()
+                settingsbutton.forceActiveFocus()
+            }
+            Keys.onPressed: {
+                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    genreScreen()
+                }
+                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    mainList.forceActiveFocus()
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: settings.MouseHover == "Yes"
+                onEntered: genrebutton.forceActiveFocus()
+                onExited: genrebutton.focus = false
+                onClicked: genreScreen()
+            }
+        }
+
+        Rectangle {
         id: settingsbutton
 
             width: height
@@ -247,7 +301,11 @@ id: root
                     mainList.currentIndex = 0;
             }
 
-            Keys.onDownPressed: mainList.focus = true;
+            Keys.onDownPressed: mainList.forceActiveFocus();
+            Keys.onLeftPressed: {
+                sfxNav.play();
+                genrebutton.forceActiveFocus();
+            }
             Keys.onPressed: {
                 // Accept
                 if (api.keys.isAccept(event) && !event.isAutoRepeat) {
@@ -257,14 +315,14 @@ id: root
                 // Back
                 if (api.keys.isCancel(event) && !event.isAutoRepeat) {
                     event.accepted = true;
-                    mainList.focus = true;
+                    mainList.forceActiveFocus();
                 }
             }
             // Mouse/touch functionality
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: settingsbutton.focus = true;
+                onEntered: settingsbutton.forceActiveFocus();
                 onExited: settingsbutton.focus = false;
                 onClicked: settingsScreen();
             }
@@ -393,7 +451,10 @@ id: root
             }
 
             // List specific input
-            Keys.onUpPressed: settingsbutton.focus = true;
+            Keys.onUpPressed: {
+                sfxNav.play();
+                genrebutton.forceActiveFocus();
+            }
             Keys.onLeftPressed: { sfxNav.play(); decrementCurrentIndex() }
             Keys.onRightPressed: { sfxNav.play(); incrementCurrentIndex() }
             Keys.onPressed: {
@@ -697,7 +758,7 @@ id: root
 
         anchors.fill: parent
         model: mainModel
-        focus: true
+        focus: !genrebutton.activeFocus && !settingsbutton.activeFocus
         highlightMoveDuration: 200
         highlightRangeMode: ListView.ApplyRange 
         preferredHighlightBegin: header.height
