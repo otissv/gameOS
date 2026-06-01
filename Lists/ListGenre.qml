@@ -16,6 +16,7 @@
 
 import QtQuick 2.0
 import SortFilterProxyModel 0.2
+import "../utils.js" as Utils
 
 Item {
 id: root
@@ -25,12 +26,32 @@ id: root
     property int max: genreGames.count
     property string genre: ""
 
+    property bool kidsOnly: false
+
+    function matchesGenreAt(srcIndex) {
+        var filterGenre = genre
+        if (!filterGenre.length)
+            return false
+        return Utils.gameHasGenre(api.allGames.get(srcIndex), filterGenre)
+    }
+
+    function isKidsOnlyAt(index) {
+        return Utils.isKidsOnlyGame(api.allGames.get(index));
+    }
+
     SortFilterProxyModel {
     id: genreGames
 
         sourceModel: api.allGames
-        filters: RegExpFilter { roleName: "genre"; pattern: genre; caseSensitivity: Qt.CaseInsensitive; }
-        sorters: RoleSorter { roleName: "rating"; sortOrder: Qt.DescendingOrder }
+        filters: [
+            ExpressionFilter { expression: root.matchesGenreAt(model.index) },
+            ValueFilter { roleName: "favorite"; value: true; enabled: showFavs },
+            RegExpFilter { roleName: "title"; pattern: searchTerm; caseSensitivity: Qt.CaseInsensitive; enabled: searchTerm != "" },
+            ExpressionFilter { enabled: kidsOnly; expression: root.isKidsOnlyAt(model.index) }
+        ]
+        sorters: [
+            RoleSorter { roleName: sortByFilter[sortByIndex]; sortOrder: orderBy }
+        ]
     }
 
     SortFilterProxyModel {

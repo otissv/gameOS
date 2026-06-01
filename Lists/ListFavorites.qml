@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,19 +16,25 @@
 
 import QtQuick 2.0
 import SortFilterProxyModel 0.2
+import "../utils.js" as Utils
 
 Item {
 id: root
     
     readonly property alias games: gamesFiltered
     function currentGame(index) { return api.allGames.get(lastplayedFavorites.mapToSource(index)) }
+    function isKidsOnlyAt(index) { return Utils.isKidsOnlyGame(api.allGames.get(index)); }
+    property bool kidsOnly: false
     property int max: lastplayedFavorites.count
 
     SortFilterProxyModel {
     id: lastplayedFavorites
 
         sourceModel: api.allGames
-        filters: ValueFilter { roleName: "favorite"; value: true }
+        filters: [
+            ValueFilter { roleName: "favorite"; value: true },
+            ExpressionFilter { enabled: kidsOnly; expression: root.isKidsOnlyAt(model.index) }
+        ]
         sorters: RoleSorter { roleName: "lastPlayed"; sortOrder: Qt.DescendingOrder; }
     }
 

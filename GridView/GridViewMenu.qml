@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,6 +31,10 @@ id: root
     }
 
     property var sortedGames;
+    property var sortOrderWatcher: orderBy
+    property var sortFieldWatcher: sortByIndex
+    onSortOrderWatcherChanged: sortedGames = null
+    onSortFieldWatcherChanged: sortedGames = null
     property bool isLeftTriggerPressed: false;
     property bool isRightTriggerPressed: false;
 
@@ -64,7 +68,7 @@ id: root
             return false;
         }
 
-        if (sortByFilter[sortByIndex].toLowerCase() != "sort_title") {
+        if (sortByFilter[sortByIndex] !== "sortBy") {
             return false;
         }
 
@@ -75,7 +79,7 @@ id: root
         else {
             // NOTE: We should be using the scroll proxy here, but this is significantly faster.
             if (sortedGames == null) {
-                sortedGames = list.collection.games.toVarArray().map(g => g.title.toLowerCase()).sort((a, b) => a.localeCompare(b));
+                sortedGames = list.collection.games.toVarArray().map(g => g.sortBy.toLowerCase());
             }
 
             var currentGameTitle = sortedGames[currentIndex];
@@ -134,7 +138,7 @@ id: root
 
     ListCollectionGames {
         id: list
-        isKidsCollection: Utils.isKidsCollectionIndex(currentCollectionIndex)
+        kidsOnly: isKidsView
     }
 
     // Load settings
@@ -205,6 +209,10 @@ id: root
         }
     }
 
+
+  
+
+
     Item {
     id: gridContainer
 
@@ -214,6 +222,8 @@ id: root
             right: parent.right; rightMargin: globalMargin
             bottom: parent.bottom; bottomMargin: globalMargin
         }
+
+       
 
         GridView {
         id: gamegrid
@@ -414,7 +424,7 @@ id: root
         // Next collection
         if (api.keys.isNextPage(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            if (currentCollectionIndex < platformCollectionCount - 1)
+            if (currentCollectionIndex < api.collections.count - 1)
                 currentCollectionIndex++;
             else
                 currentCollectionIndex = 0;
@@ -433,7 +443,7 @@ id: root
             if (currentCollectionIndex > 0)
                 currentCollectionIndex--;
             else
-                currentCollectionIndex = platformCollectionCount - 1;
+                currentCollectionIndex = api.collections.count - 1;
 
             gamegrid.currentIndex = 0;
             sfxToggle.play();

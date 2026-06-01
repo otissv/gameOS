@@ -24,7 +24,6 @@ import "Global"
 import "GameDetails"
 import "ShowcaseView"
 import "Settings"
-import "Lists"
 import "utils.js" as Utils
 
 FocusScope {
@@ -51,6 +50,7 @@ id: root
             HideButtonHelp:                api.memory.has("Hide button help") ? api.memory.get("Hide button help") : "No",
             MouseHover:                    api.memory.has("Enable mouse hover") ? api.memory.get("Enable mouse hover") : "No",
             AlwaysShowTitles:              api.memory.has("Always show titles") ? api.memory.get("Always show titles") : "No",
+            ShowAgeCategoryBadge:          api.memory.has("Show age category badge") ? api.memory.get("Show age category badge") : "Yes",
             AnimateHighlight:              api.memory.has("Animate highlight") ? api.memory.get("Animate highlight") : "No",
             AllowVideoPreviewAudio:        api.memory.has("Video preview audio") ? api.memory.get("Video preview audio") : "No",
             ShowScanlines:                 api.memory.has("Show scanlines") ? api.memory.get("Show scanlines") : "Yes",
@@ -76,17 +76,10 @@ id: root
     // Collections
     property int currentCollectionIndex: 0
     property int currentGameIndex: 0
-    property bool isKidsCollection: Utils.isKidsCollectionIndex(currentCollectionIndex)
-    property int platformCollectionCount: Utils.platformCollectionCount(api.collections.count)
-    function platformAt(index) {
-        if (Utils.isKidsCollectionIndex(index))
-            return kidsCollectionView.collection;
-        return api.collections.get(index - 1);
-    }
-    property var currentCollection: platformAt(currentCollectionIndex)
+    property bool kidsViewActive: false
+    property bool isKidsView: kidsViewActive
+    property var currentCollection: api.collections.get(currentCollectionIndex)
     property var currentGame
-
-    ListKidsOnly { id: kidsCollectionView }
 
     // Stored variables for page navigation
     property int storedHomePrimaryIndex: 0
@@ -99,7 +92,7 @@ id: root
 
     // Filtering options
     property bool showFavs: false
-    property var sortByFilter: ["sort_title", "lastPlayed", "playCount", "rating"]
+    property var sortByFilter: ["sortBy", "lastPlayed", "playCount", "rating"]
     property var sortByDisplay: ["title", "last played", "play count", "rating"]
     property int sortByIndex: 0
     property var orderBy: Qt.AscendingOrder
@@ -160,6 +153,7 @@ id: root
         api.memory.set('storedHomeSecondaryIndex', storedHomeSecondaryIndex);
         api.memory.set('storedCollectionIndex', currentCollectionIndex);
         api.memory.set('storedCollectionGameIndex', storedCollectionGameIndex);
+        api.memory.set('savedKidsView', kidsViewActive);
 
         const savedGameIndex = api.allGames.toVarArray().findIndex(g => g === game);
         api.memory.set('savedGame', savedGameIndex);
@@ -177,6 +171,7 @@ id: root
         storedHomeSecondaryIndex    = api.memory.get('storedHomeSecondaryIndex');
         currentCollectionIndex      = api.memory.get('storedCollectionIndex');
         storedCollectionGameIndex   = api.memory.get('storedCollectionGameIndex');
+        kidsViewActive              = api.memory.has('savedKidsView') ? api.memory.get('savedKidsView') : false;
 
         currentGame                 = api.allGames.get(api.memory.get('savedGame'));
         root.state                  = api.memory.get('savedState');
@@ -190,6 +185,7 @@ id: root
         api.memory.unset('storedHomeSecondaryIndex');
         api.memory.unset('storedCollectionIndex');
         api.memory.unset('storedCollectionGameIndex');
+        api.memory.unset('savedKidsView');
 
         // Remove this one so we only have it when we come back from the game and not at Pegasus launch
         api.memory.unset('To Game');
@@ -225,6 +221,9 @@ id: root
             name: "showcasescreen";
         },
         State {
+            name: "kidsshowcasescreen";
+        },
+        State {
             name: "gameviewscreen";
         },
         State {
@@ -258,7 +257,15 @@ id: root
     function showcaseScreen() {
         sfxAccept.play();
         lastState.push(state);
+        kidsViewActive = false;
         root.state = "showcasescreen";
+    }
+
+    function kidsScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        kidsViewActive = true;
+        root.state = "kidsshowcasescreen";
     }
 
     function gameDetails(game) {
@@ -299,8 +306,11 @@ id: root
         if (state == lastState[lastState.length-1])
             popLastGame();
 
-        state = lastState[lastState.length - 1];
+        var nextState = lastState[lastState.length - 1];
+        state = nextState;
         lastState.pop();
+        if (nextState === "showcasescreen")
+            kidsViewActive = false;
     }
 
     function popLastGame() {
@@ -336,6 +346,19 @@ id: root
 
         anchors.fill: parent
         sourceComponent: showcaseview
+        asynchronous: true
+    }
+
+    Loader  {
+    id: kidsShowcaseLoader
+
+        focus: (root.state === "kidsshowcasescreen")
+        active: opacity !== 0
+        opacity: focus ? 1 : 0
+        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
+
+        anchors.fill: parent
+        sourceComponent: kidsview
         asynchronous: true
     }
 
@@ -422,7 +445,13 @@ id: root
     Component {
     id: showcaseview
 
-        ShowcaseViewMenu { focus: true }
+        ShowcaseViewMenu { focus: true; kidsOnly: false }
+    }
+
+    Component {
+    id: kidsview
+
+        ShowcaseViewMenu { focus: true; kidsOnly: true }
     }
 
     Component {

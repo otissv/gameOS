@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.11
 import "qrc:/qmlutils" as PegasusUtils
+import "../utils.js" as Utils
 
 Item {
 id: infocontainer
@@ -134,13 +135,52 @@ id: infocontainer
             opacity: 0.2
         }
 
+        // Age box
+        Text {
+        id: agetitle
+
+            width: contentWidth
+            height: parent.height
+            anchors { left: divider2.right; leftMargin: vpx(25) }
+            verticalAlignment: Text.AlignVCenter
+            text: "Age: "
+            font.pixelSize: vpx(16)
+            font.family: subtitleFont.name
+            font.bold: true
+            color: theme.accent
+        }
+
+        Text {
+        id: agetext
+
+            width: contentWidth
+            height: parent.height
+            anchors { left: agetitle.right; leftMargin: vpx(5) }
+            verticalAlignment: Text.AlignVCenter
+            text: gameData ? Utils.ageCategory(Utils.ageRatingText(gameData)) : ""
+            font.pixelSize: vpx(16)
+            font.family: subtitleFont.name
+            color: theme.text
+        }
+
+        Rectangle {
+        id: divider3
+            width: vpx(2)
+            anchors {
+                left: agetext.right; leftMargin: (25)
+                top: parent.top; topMargin: vpx(10)
+                bottom: parent.bottom; bottomMargin: vpx(10)
+            }
+            opacity: 0.2
+        }
+
         // Genre box
         Text {
         id: genretitle
 
             width: contentWidth
             height: parent.height
-            anchors { left: divider2.right; leftMargin: vpx(25) }
+            anchors { left: divider3.right; leftMargin: vpx(25) }
             verticalAlignment: Text.AlignVCenter
             text: "Genre: "
             font.pixelSize: vpx(16)
@@ -159,7 +199,7 @@ id: infocontainer
                 bottom: parent.bottom
             }
             verticalAlignment: Text.AlignVCenter
-            text: gameData ? gameData.genre : ""
+            text: gameData ? Utils.formatGenres(gameData) : ""
             font.pixelSize: vpx(16)
             font.family: subtitleFont.name
             elide: Text.ElideRight

@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ id: root
     }
     
     ListPublisher { id: publisherCollection; publisher: game && game.publisher ? game.publisher : ""; max: 10 }
-    ListGenre { id: genreCollection; genre: game ? game.genreList[0] : ""; max: 10 }
+    ListGenre { id: genreCollection; genre: game ? (Utils.genreListFromGame(game)[0] || "") : ""; max: 10 }
 
     // Combine the video and the screenshot arrays into one
     function mediaArray() {
@@ -614,7 +614,7 @@ id: root
             itemWidth: (root.width - globalMargin * 2) / 8.0
             itemHeight: itemWidth / settings.TallRatio
 
-            title: game ? "More " + game.genreList[0].toLowerCase() + " games" : ""
+            title: game ? "More " + (Utils.genreListFromGame(game)[0] || "").toLowerCase() + " games" : ""
             search: genreCollection
             onListHighlighted: { sfxNav.play(); content.currentIndex = list2.ObjectModel.index; }
         }

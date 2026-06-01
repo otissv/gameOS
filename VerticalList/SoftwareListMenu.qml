@@ -28,7 +28,7 @@ id: root
 
     ListCollectionGames {
         id: list
-        isKidsCollection: Utils.isKidsCollectionIndex(currentCollectionIndex)
+        kidsOnly: isKidsView
     }
 
     Image {

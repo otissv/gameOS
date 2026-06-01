@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,40 +16,32 @@
 
 import QtQuick 2.0
 import SortFilterProxyModel 0.2
-import "../utils.js" as Utils
 
 Item {
 id: root
 
-    readonly property alias games: gamesFiltered
+    readonly property alias games: lastPlayedInCollection
+    property var sourceCollection: api.collections.get(currentCollectionIndex)
+
     function currentGame(index) {
-        return api.allGames.get(kidsOnlyGames.mapToSource(gamesFiltered.mapToSource(index)));
+        return sourceCollection.games.get(lastPlayedInCollection.mapToSource(index));
     }
-    function isKidsOnlyAt(index) {
-        return Utils.isKidsOnlyGame(api.allGames.get(index));
-    }
-    property int max: kidsOnlyGames.count
 
     SortFilterProxyModel {
-    id: kidsOnlyGames
+    id: lastPlayedInCollection
 
-        sourceModel: api.allGames
+        sourceModel: sourceCollection.games
         filters: ExpressionFilter {
-            expression: root.isKidsOnlyAt(model.index)
+            expression: !isNaN(lastPlayed)
         }
-        sorters: RoleSorter { roleName: "title"; sortOrder: Qt.AscendingOrder }
-    }
-
-    SortFilterProxyModel {
-    id: gamesFiltered
-
-        sourceModel: kidsOnlyGames
-        filters: IndexFilter { maximumIndex: max - 1 }
+        sorters: RoleSorter { roleName: "lastPlayed"; sortOrder: Qt.DescendingOrder }
     }
 
     property var collection: {
-        var info = Utils.kidsCollectionInfo();
-        info.games = gamesFiltered;
-        return info;
+        return {
+            name:       "Continue Playing",
+            shortName:  "lastplayed",
+            games:      lastPlayedInCollection
+        }
     }
 }

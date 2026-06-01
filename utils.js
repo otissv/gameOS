@@ -378,18 +378,70 @@ function shuffle(model){
   return model;
 }
 
-function uniqueGameValues(fieldName) {
+function parseDelimitedList(value) {
+  if (!value)
+    return [];
+  return value.toString().split(/[,/]/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length; });
+}
+
+function genreListFromGame(game) {
+  if (!game)
+    return [];
+  var seen = {};
+  var list = [];
+  function addItems(items) {
+    items.forEach(function(item) {
+      var key = item.toLowerCase();
+      if (item.length && !seen[key]) {
+        seen[key] = true;
+        list.push(item);
+      }
+    });
+  }
+  if (game.genre)
+    addItems(parseDelimitedList(game.genre));
+  if (game.genreList && game.genreList.length)
+    game.genreList.forEach(function(g) { addItems(parseDelimitedList(g)); });
+  return list;
+}
+
+function formatGenres(game) {
+  return genreListFromGame(game).join(", ");
+}
+
+function gameHasGenre(game, genreName) {
+  if (!game || !genreName)
+    return false;
+  var target = genreName.toString().trim().toLowerCase();
+  if (!target)
+    return false;
+  return genreListFromGame(game).some(function(g) {
+    return g.toLowerCase() === target;
+  });
+}
+
+function uniqueGameValues(fieldName, kidsOnly) {
   const set = new Set();
   api.allGames.toVarArray().forEach(game => {
+    if (kidsOnly && !isKidsOnlyGame(game))
+      return;
+    if (fieldName === 'genreList') {
+      genreListFromGame(game).forEach(v => set.add(v));
+    } else if (game[fieldName]) {
       game[fieldName].forEach(v => set.add(v));
+    }
   });
   return [...set.values()].sort();
 }
 
-function uniqueValuesArray(fieldName) {
+function uniqueValuesArray(fieldName, kidsOnly) {
+  if (fieldName === 'genreList')
+    return uniqueGameValues('genreList', kidsOnly);
   let arr = [];
   var allGames = api.allGames.toVarArray();
   for(var i=0;i<allGames.length;i++) {
+    if (kidsOnly && !isKidsOnlyGame(allGames[i]))
+      continue;
     arr.push(allGames[i][fieldName]);
   }
   return arr;
@@ -418,20 +470,6 @@ function returnRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-// Age rating codes
-// 3+
-// 7+
-// 12+
-// 16+
-// 18+
-// EC - Early Childhood
-// E - Everyone
-// E10+ - Everyone 10+
-// T - Teen
-// M - Mature 17+
-// RP - Rating Pending
-// Not Rated
-
 function ageRatingText(game) {
   if (!game || !game.extra)
     return "";
@@ -457,7 +495,7 @@ function ageCategory(rating) {
     return "";
 
   var lower = r.toLowerCase();
-  if (lower.indexOf("mature") >= 0 || r === "M - Mature 17+" || r === "18+" || r === "18")
+  if (lower.indexOf("mature") >= 0 || r === "M - Mature 17+" || r == 'M' || r === "18+" || r === "18")
     return "18+";
 
   var age = pegiNumericAge(r);
@@ -486,14 +524,3 @@ function isKidsOnlyGame(game) {
   return ageCategory(ageRatingText(game)) === "Kids";
 }
 
-function kidsCollectionInfo() {
-  return { name: "Kids", shortName: "kids" };
-}
-
-function isKidsCollectionIndex(index) {
-  return index === 0;
-}
-
-function platformCollectionCount(apiCollectionCount) {
-  return apiCollectionCount + 1;
-}

@@ -28,16 +28,17 @@ import "../utils.js" as Utils
 FocusScope {
 id: root
 
+    property bool kidsOnly: false
+
     // Pull in our custom lists and define
-    ListAllGames    { id: listNone;        max: 0 }
-    ListAllGames    { id: listAllGames;    max: settings.ShowcaseColumns }
-    ListFavorites   { id: listFavorites;   max: settings.ShowcaseColumns }
-    ListLastPlayed  { id: listLastPlayed;  max: settings.ShowcaseColumns }
-    ListMostPlayed  { id: listMostPlayed;  max: settings.ShowcaseColumns }
-    ListRecommended { id: listRecommended; max: settings.ShowcaseColumns }
-    ListKidsOnly    { id: listKidsOnly;    max: settings.ShowcaseColumns }
-    ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub }
-    ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre }
+    ListAllGames    { id: listNone;        max: 0; kidsOnly: root.kidsOnly }
+    ListAllGames    { id: listAllGames;    max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
+    ListFavorites   { id: listFavorites;   max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
+    ListLastPlayed  { id: listLastPlayed;  max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
+    ListMostPlayed  { id: listMostPlayed;  max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
+    ListRecommended { id: listRecommended; max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
+    ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub; kidsOnly: root.kidsOnly }
+    ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre; kidsOnly: root.kidsOnly }
 
     property var featuredCollection: listFavorites
     property var collection1: getCollection(settings.ShowcaseCollection1, settings.ShowcaseCollection1_Thumbnail)
@@ -85,14 +86,16 @@ id: root
             case "Recommended":
                 collection.search = listRecommended;
                 break;
-            case "Kids":
-                collection.search = listKidsOnly;
-                break;
             case "Top by Publisher":
                 collection.search = listPublisher;
                 break;
             case "Top by Genre":
                 collection.search = listGenre;
+                break;
+            case "Kids":
+                collection.enabled = false;
+                collection.height = 0;
+                collection.search = listNone;
                 break;
             case "None":
                 collection.enabled = false;
@@ -109,8 +112,8 @@ id: root
         return collection;
     }
 
-    property string randoPub: (Utils.returnRandom(Utils.uniqueValuesArray('publisher')) || '')
-    property string randoGenre: (Utils.returnRandom(Utils.uniqueValuesArray('genreList'))[0] || '').toLowerCase()
+    property string randoPub: (Utils.returnRandom(Utils.uniqueValuesArray('publisher', kidsOnly)) || '')
+    property string randoGenre: Utils.returnRandom(Utils.uniqueGameValues('genreList', kidsOnly)) || ''
 
     property bool ftue: featuredCollection.games.count == 0
 
@@ -230,6 +233,116 @@ id: root
         }
 
         Rectangle {
+        id: kidsbutton
+
+            visible: !kidsOnly
+            width: vpx(80)
+            height: vpx(40)
+            anchors {
+                right: genrebutton.left
+                rightMargin: vpx(10)
+            }
+            color: focus ? theme.accent : "transparent"
+            radius: height / 2
+            anchors.verticalCenter: parent.verticalCenter
+            onFocusChanged: {
+                sfxNav.play()
+                if (focus)
+                    mainList.currentIndex = -1
+                else
+                    mainList.currentIndex = 0
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: "KidsOS"
+                color: focus ? theme.accent : "white"
+                font.family: subtitleFont.name
+                font.pixelSize: vpx(14)
+                font.bold: true
+            }
+
+            Keys.onDownPressed: mainList.forceActiveFocus()
+            Keys.onRightPressed: {
+                sfxNav.play()
+                genrebutton.forceActiveFocus()
+            }
+            Keys.onPressed: {
+                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    kidsScreen()
+                }
+                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    mainList.forceActiveFocus()
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: settings.MouseHover == "Yes"
+                onEntered: kidsbutton.forceActiveFocus()
+                onExited: kidsbutton.focus = false
+                onClicked: kidsScreen()
+            }
+        }
+
+        Rectangle {
+        id: homebutton
+
+            visible: kidsOnly
+            width: vpx(80)
+            height: vpx(40)
+            anchors {
+                right: genrebutton.left
+                rightMargin: vpx(10)
+            }
+            color: focus ? theme.accent : "transparent"
+            radius: height / 2
+            anchors.verticalCenter: parent.verticalCenter
+            onFocusChanged: {
+                sfxNav.play()
+                if (focus)
+                    mainList.currentIndex = -1
+                else
+                    mainList.currentIndex = 0
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: "MaxxOS"
+                color: focus ? theme.accent : "white"
+                font.family: subtitleFont.name
+                font.pixelSize: vpx(14)
+                font.bold: true
+            }
+
+            Keys.onDownPressed: mainList.forceActiveFocus()
+            Keys.onRightPressed: {
+                sfxNav.play()
+                genrebutton.forceActiveFocus()
+            }
+            Keys.onPressed: {
+                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    previousScreen()
+                }
+                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
+                    event.accepted = true
+                    mainList.forceActiveFocus()
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: settings.MouseHover == "Yes"
+                onEntered: homebutton.forceActiveFocus()
+                onExited: homebutton.focus = false
+                onClicked: previousScreen()
+            }
+        }
+
+        Rectangle {
         id: genrebutton
 
             width: vpx(80)
@@ -259,6 +372,13 @@ id: root
             }
 
             Keys.onDownPressed: mainList.forceActiveFocus()
+            Keys.onLeftPressed: {
+                sfxNav.play()
+                if (kidsOnly)
+                    homebutton.forceActiveFocus()
+                else
+                    kidsbutton.forceActiveFocus()
+            }
             Keys.onRightPressed: {
                 sfxNav.play()
                 settingsbutton.forceActiveFocus()
@@ -502,9 +622,9 @@ id: root
 
             Component.onCompleted: positionViewAtIndex(savedIndex, ListView.End)
 
-            model: platformCollectionCount
+            model: api.collections.count
             delegate: Rectangle {
-                property var modelData: platformAt(index)
+                property var modelData: api.collections.get(index)
                 property bool selected: ListView.isCurrentItem && platformlist.focus
                 width: (root.width - globalMargin * 2) / 7.0
                 height: width * settings.WideRatio
@@ -758,7 +878,7 @@ id: root
 
         anchors.fill: parent
         model: mainModel
-        focus: !genrebutton.activeFocus && !settingsbutton.activeFocus
+        focus: !genrebutton.activeFocus && !settingsbutton.activeFocus && !kidsbutton.activeFocus && !homebutton.activeFocus
         highlightMoveDuration: 200
         highlightRangeMode: ListView.ApplyRange 
         preferredHighlightBegin: header.height

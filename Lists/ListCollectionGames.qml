@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,20 +16,19 @@
 
 import QtQuick 2.0
 import SortFilterProxyModel 0.2
+import "../utils.js" as Utils
 
 Item {
 id: root
 
-    property bool isKidsCollection: false
+    property bool kidsOnly: false
     readonly property alias games: gamesFiltered
-    property var collection: isKidsCollection
-        ? currentCollection
-        : api.collections.get(currentCollectionIndex - 1)
+    property var collection: api.collections.get(currentCollectionIndex)
     function currentGame(index) {
-        var idx = gamesFiltered.mapToSource(index);
-        if (isKidsCollection)
-            idx = currentCollection.games.mapToSource(idx);
-        return isKidsCollection ? api.allGames.get(idx) : collection.games.get(idx);
+        return collection.games.get(gamesFiltered.mapToSource(index));
+    }
+    function isKidsGameInCollection(index) {
+        return Utils.isKidsOnlyGame(collection.games.get(index));
     }
     property int max
 
@@ -40,6 +39,7 @@ id: root
         filters: [
             ValueFilter { roleName: "favorite"; value: true; enabled: showFavs },
             RegExpFilter { roleName: "title"; pattern: searchTerm; caseSensitivity: Qt.CaseInsensitive; enabled: searchTerm != "" },
+            ExpressionFilter { enabled: kidsOnly; expression: root.isKidsGameInCollection(model.index) },
             IndexFilter { maximumIndex: max - 1; enabled: max }
         ]
         sorters: [

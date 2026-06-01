@@ -1,5 +1,5 @@
 // gameOS theme
-// Copyright (C) 2018-2020 Seth Powell 
+// Copyright (C) 2026 Otis Virginie
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,11 +23,13 @@ id: root
 
     readonly property alias games: filteredModel
     function currentGame(index) { return api.allGames.get(filteredModel.mapToSource(index)) }
+    function isKidsOnlyAt(index) { return Utils.isKidsOnlyGame(api.allGames.get(index)); }
 
+    property bool       kidsOnly: false
     property string     title
     property var        years:      [0,2500]
     property int        maxResults: 0
-    property string     sortBy:     "sortTitle"
+    property string     sortBy:     "sortBy"
     property bool       descending
 
     property var allowedDevs:   []//Utils.uniqueGameValues('developerList').filter(e => e.selected).map(e => e.name)
@@ -60,7 +62,7 @@ id: root
             },
             ExpressionFilter {
                 enabled: allowedGenres.length
-                expression: allowedGenres && genreList.some(v => allowedGenres.includes(v))
+                expression: allowedGenres && Utils.genreListFromGame({ genre: genre, genreList: genreList }).some(v => allowedGenres.includes(v))
             },
             ExpressionFilter {
                 enabled: allowedTags.length
@@ -69,6 +71,10 @@ id: root
             ExpressionFilter {
                 enabled: years.length
                 expression: releaseYear == 0 || (years[0] <= releaseYear && releaseYear <= years[1])
+            },
+            ExpressionFilter {
+                enabled: kidsOnly
+                expression: root.isKidsOnlyAt(model.index)
             },
             IndexFilter { 
                 enabled: maxResults != 0

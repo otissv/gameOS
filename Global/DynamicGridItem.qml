@@ -145,6 +145,7 @@ id: root
 
         AgeRatingBadge {
             gameData: root.gameData
+            showBadge: settings.ShowAgeCategoryBadge === "Yes"
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.margins: vpx(7)
