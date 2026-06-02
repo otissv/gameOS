@@ -239,7 +239,8 @@ id: root
             width: vpx(80)
             height: vpx(40)
             anchors {
-                right: genrebutton.left
+                left: parent.left
+                leftMargin: globalMargin
                 rightMargin: vpx(10)
             }
             color: focus ? theme.accent : "transparent"
@@ -255,7 +256,7 @@ id: root
 
             Text {
                 anchors.centerIn: parent
-                text: "KidsOS"
+                text: "Maxx"
                 color: focus ? theme.accent : "white"
                 font.family: subtitleFont.name
                 font.pixelSize: vpx(14)
@@ -294,7 +295,8 @@ id: root
             width: vpx(80)
             height: vpx(40)
             anchors {
-                right: genrebutton.left
+                left: parent.left
+                leftMargin: globalMargin
                 rightMargin: vpx(10)
             }
             color: focus ? theme.accent : "transparent"
@@ -310,7 +312,7 @@ id: root
 
             Text {
                 anchors.centerIn: parent
-                text: "MaxxOS"
+                text: "Maxx Kids"
                 color: focus ? theme.accent : "white"
                 font.family: subtitleFont.name
                 font.pixelSize: vpx(14)

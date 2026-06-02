@@ -259,6 +259,22 @@ id: root
         visible: settings.GameLogo === "Show"
     }
 
+    GameMetaRow {
+    id: logoMeta
+
+        gameData: game
+        showGenre: false
+        anchors {
+            left: logo.left
+            right: parent.right; rightMargin: vpx(70)
+            bottom: logo.bottom; bottomMargin: vpx(20)
+        }
+        opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        visible: opacity !== 0
+        z: 10
+    }
+
     DropShadow {
     id: logoshadow
 
@@ -539,6 +555,7 @@ id: root
         // Game menu
         ListView {
         id: menu
+        z: 10
 
             property bool selected: parent.focus
             focus: selected

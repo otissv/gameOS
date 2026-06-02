@@ -27,8 +27,19 @@ id: root
 
     property string ageRatingText: Utils.ageRatingText(gameData)
 
+   
     function ageCategoryByAgeRatingText() {
-        return Utils.ageCategory(ageRatingText);
+       let rating = Utils.ageCategory(ageRatingText);
+
+       if (rating === "18+") {
+        return "18";
+       } else if (rating === "16+") {
+        return "16";
+       } else if (rating === "Kids") {
+        return "PG";
+       } else {
+        return "";
+       }
     }
 
     function colorByAgeRating(rating) {
@@ -38,10 +49,14 @@ id: root
     visible: showBadge && ageRatingText !== ""
     z: 1
     color: colorByAgeRating(ageRatingText)
-    width: vpx(50)
-    height: vpx(25)
-    radius: vpx(10)
-    opacity: 0.5
+    width: vpx(30)
+    height: vpx(30)
+    radius: vpx(30)
+    border.width: vpx(1)
+    border.color: "white"
+    // opacity: 0.5
+
+
 
     Text {
         text: parent.ageCategoryByAgeRatingText()
