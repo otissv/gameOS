@@ -381,7 +381,7 @@ function shuffle(model){
 function parseDelimitedList(value) {
   if (!value)
     return [];
-  return value.toString().split(/[,/]/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length; });
+  return value.toString().split(/[,]/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length; });
 }
 
 function genreListFromGame(game) {
