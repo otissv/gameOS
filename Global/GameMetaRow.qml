@@ -24,8 +24,11 @@ id: root
     
         anchors {
             left: parent.left; 
-            verticalCenter: parent.verticalCenter
+            bottom: gameMetaInfo.top
+            bottomMargin: vpx(25)
+
         }
+
         text: root.gameData ? root.gameData.title : ""
         font.pixelSize: vpx(16)
         font.family: subtitleFont.name
@@ -35,121 +38,108 @@ id: root
     }
 
     Rectangle {
-    id: divider1
+    id: gameMetaInfo 
 
         anchors {
-            left: titletext.right
-            leftMargin: dividerSpacing
+            // top: titletext.top; 
+            left: parent.left; 
             verticalCenter: parent.verticalCenter
         }
         width: vpx(2)
-        height: parent.height / 2
-        color: theme.text
-        visible: root.showTitle
-        opacity: 0.5
-    }
-
-     // Age box
-    AgeRatingBadge {
-        id: agetext
-
-        gameData: root.gameData
-        anchors {
-            left: divider1.right
-            leftMargin: dividerSpacing
-            verticalCenter: parent.verticalCenter
-        }
-    }
+        color: "transparent"
 
 
-    // Players box
-    PlayerCount {
-        id: playersCount
+         // Rating box
+        Item {
+            id: ratingtext
 
-        gameData: root.gameData
-        anchors {
-            left: agetext.right; leftMargin: root.dividerSpacing
-            verticalCenter: parent.verticalCenter
-        }
-    } 
+            width: ratingStars.width
+            height: parent.height
+            anchors {
+                left: parent.left
+                verticalCenter: parent.verticalCenter
+            }
 
-    // Rating box
-    Item {
-        id: ratingtext
-
-        width: ratingStars.width
-        height: parent.height
-        anchors {
-            left: playersCount.right
-            leftMargin: root.dividerSpacing
-            verticalCenter: parent.verticalCenter
+            StarRating {
+                id: ratingStars
+                anchors.verticalCenter: parent.verticalCenter
+                ratingPercent: root.ratingPercent
+                starCount: 5
+                starSize: vpx(16)
+                starSpacing: vpx(2)
+                fullColor: theme.text
+                emptyColor: Qt.rgba(1, 1, 1, 0.35)
+                starFontFamily: subtitleFont.name
+            }
         }
 
-        StarRating {
-            id: ratingStars
-            anchors.verticalCenter: parent.verticalCenter
-            ratingPercent: root.ratingPercent
-            starCount: 5
-            starSize: vpx(16)
-            starSpacing: vpx(2)
-            fullColor: "white"
-            emptyColor: Qt.rgba(1, 1, 1, 0.35)
-            starFontFamily: subtitleFont.name
-        }
-    }
-    
+        // Players box
+        PlayerCount {
+            id: playersCount
 
-    Rectangle {
-    id: divider3
-    
-        width: vpx(2)
-      
+            gameData: root.gameData
+            anchors {
+                left: ratingtext.right; 
+                leftMargin: root.dividerSpacing
+                verticalCenter: parent.verticalCenter
+            }
+        }
+
+        // Age box
+        AgeRatingBadge {
+            id: agetext
+
+            gameData: root.gameData
+            anchors {
+                left: playersCount.right;
+                leftMargin: root.dividerSpacing
+                verticalCenter: parent.verticalCenter
+            }
+        } 
+
+        // Genre box
+        Text {
+            id: genretitle
+
+            width: contentWidth
+            height: parent.height
+            anchors {
+                left: agetext.right
+                leftMargin: root.dividerSpacing
+                top: parent.top; topMargin: vpx(10)
+                bottom: parent.bottom; bottomMargin: vpx(10)
+            }
+            verticalAlignment: Text.AlignVCenter
+            text: "Genre: "
+            font.pixelSize: vpx(16)
+            font.family: subtitleFont.name
+            font.bold: true
+            color: theme.text
+            visible: root.showGenre && root.hasGenre
+        }
+
+        Text {
+            id: genretext
+
+            anchors {
+                left: genretitle.right
+                leftMargin: vpx(5)
+                right: parent.right
+                top: parent.top
+                bottom: parent.bottom
+            }
+
+            verticalAlignment: Text.AlignVCenter
+            text: root.gameData ? Utils.formatGenres(root.gameData) : ""
+            font.pixelSize: vpx(16)
+            font.family: subtitleFont.name
+            elide: Text.ElideRight
+            color: theme.text
+            visible: root.showGenre && root.hasGenre
+        }
+
         
-        opacity: 0
-        visible: root.showGenre
     }
 
-    // Genre box
-    Text {
-        id: genretitle
-
-        width: contentWidth
-        height: parent.height
-          anchors {
-            left: ratingtext.right
-            leftMargin: root.dividerSpacing
-            top: parent.top; topMargin: vpx(10)
-            bottom: parent.bottom; bottomMargin: vpx(10)
-        }
-        verticalAlignment: Text.AlignVCenter
-        text: "Genre: "
-        font.pixelSize: vpx(16)
-        font.family: subtitleFont.name
-        font.bold: true
-        color: theme.text
-        visible: root.showGenre && root.hasGenre
-    }
-
-    Text {
-        id: genretext
-
-        anchors {
-            left: genretitle.right
-            leftMargin: vpx(5)
-            right: parent.right
-            top: parent.top
-            bottom: parent.bottom
-        }
-
-        verticalAlignment: Text.AlignVCenter
-        text: root.gameData ? Utils.formatGenres(root.gameData) : ""
-        font.pixelSize: vpx(16)
-        font.family: subtitleFont.name
-        elide: Text.ElideRight
-        color: theme.text
-        visible: root.showGenre && root.hasGenre
-    }
-
-
-    
+   
 }

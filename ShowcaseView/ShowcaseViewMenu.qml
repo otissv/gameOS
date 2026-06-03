@@ -341,7 +341,7 @@ id: root
 
             Text {
                 anchors.centerIn: parent
-                text: "Genre"
+                text: "Games"
                  color: focus ? theme.accent : theme.text
                 font.family: subtitleFont.name
                 font.pixelSize: vpx(14)
@@ -572,11 +572,11 @@ id: root
                             top: parent.top
                             left: parent.left
                             bottom: featuredGameInfo.top
-                            topMargin: vpx(32)
                             leftMargin: globalMargin
                             rightMargin: globalMargin
                         }
-                        height: vpx(120)
+                        width: vpx(500)
+                        height:parent.height / 2
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
                         smooth: true
