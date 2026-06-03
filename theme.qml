@@ -48,6 +48,7 @@ id: root
             AllowThumbVideoAudio:          api.memory.has("Play video thumbnail audio") ? api.memory.get("Play video thumbnail audio") : "No",
             HideLogo:                      api.memory.has("Hide logo when thumbnail video plays") ? api.memory.get("Hide logo when thumbnail video plays") : "No",
             HideButtonHelp:                api.memory.has("Hide button help") ? api.memory.get("Hide button help") : "No",
+            GridRandomHero:                api.memory.has("Random platform hero") ? api.memory.get("Random platform hero") : "No",
             MouseHover:                    api.memory.has("Enable mouse hover") ? api.memory.get("Enable mouse hover") : "No",
             AlwaysShowTitles:              api.memory.has("Always show titles") ? api.memory.get("Always show titles") : "No",
             ShowAgeCategoryBadge:          api.memory.has("Show age category badge") ? api.memory.get("Show age category badge") : "Yes",
@@ -194,14 +195,24 @@ id: root
     // Theme settings
     property var theme: {
         return {
-            main:           "#1d253d",
-            secondary:      "#202a44",
+            // main:           "#1d253d",
+            // secondary:      "#202a44",
+            // accent:         "#f00980",
+            // highlight:      "#f00980",
+            // text:           "#ececec",
+            // button:         "#f00980",
+            // gradientstart:  "#000d111d",
+            // gradientend:    "#FF0d111d"
+
+            main:           '#242629',
+            secondary:      '#2c2e31',
             accent:         "#f00980",
             highlight:      "#f00980",
             text:           "#ececec",
             button:         "#f00980",
-            gradientstart:  "#000d111d",
-            gradientend:    "#FF0d111d"
+            gradientstart:  "#2426291d",
+            gradientend:    "#FF0d111d",
+            border:         "#19FFFFFF"
         }
     }
 

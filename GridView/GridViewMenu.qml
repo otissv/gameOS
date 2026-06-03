@@ -23,6 +23,115 @@ import "../utils.js" as Utils
 
 FocusScope {
 id: root
+
+    anchors.fill: parent
+    
+
+    readonly property real heroHeight: height * 0.5
+    readonly property real gridTopInset: heroHeight
+    readonly property string platformFilename: (
+        root.collectionIndex >= 0 && root.collectionIndex < api.collections.count
+            ? Utils.processPlatformName(api.collections.get(root.collectionIndex).shortName)
+            : ""
+    )
+    readonly property string platformContentSource: (
+        root.platformFilename
+            ? "../assets/images/platform/" + root.platformFilename + "-content.jpg"
+            : ""
+    )
+    property string heroScreenshotSource: ""
+
+    function pickRandomHeroScreenshot() {
+        var count = list.games.count
+        if (count <= 0)
+            return ""
+
+        var tries = Math.min(count, 8)
+        for (var i = 0; i < tries; i++) {
+            var game = list.currentGame(Math.floor(Math.random() * count))
+            if (!game)
+                continue
+
+            var shots = game.assets.screenshotList
+            if (shots && shots.length > 0)
+                return shots[Math.floor(Math.random() * shots.length)]
+
+            if (game.assets.screenshots && game.assets.screenshots[0])
+                return game.assets.screenshots[0]
+
+            if (game.assets.background)
+                return game.assets.background
+        }
+
+        return ""
+    }
+
+    function refreshHeroBackground() {
+        var useRandomHero = api.memory.has("Random platform hero")
+            ? api.memory.get("Random platform hero") === "Yes"
+            : false
+
+        if (useRandomHero)
+            heroScreenshotSource = pickRandomHeroScreenshot()
+        else
+            heroScreenshotSource = ""
+    }
+
+    function gridRowForIndex(index) {
+        if (index < 0)
+            return -1
+
+        return Math.floor(index / numColumns)
+    }
+
+    function targetGridContentY(index) {
+        var row = gridRowForIndex(index)
+        var maxContentY = Math.max(0, gamegrid.contentHeight - gamegrid.height)
+
+        if (row <= 0)
+            return 0
+
+        return Math.min(row * gamegrid.cellHeight, maxContentY)
+    }
+
+    function animateGridScroll(targetY) {
+        var clampedTargetY = Math.max(0, Math.min(targetY, Math.max(0, gamegrid.contentHeight - gamegrid.height)))
+
+        if (Math.abs(gamegrid.contentY - clampedTargetY) < 1)
+            return
+
+        heroSnapAnim.stop()
+        heroSnapAnim.from = gamegrid.contentY
+        heroSnapAnim.to = clampedTargetY
+        heroSnapAnim.start()
+    }
+
+    function alignGridToCurrentIndex(immediate) {
+        var targetY = targetGridContentY(gamegrid.currentIndex)
+
+        if (immediate) {
+            heroSnapAnim.stop()
+            gamegrid.contentY = targetY
+            return
+        }
+
+        animateGridScroll(targetY)
+    }
+
+    function resetHeroScroll(immediate) {
+        if (immediate) {
+            heroSnapAnim.stop()
+            gamegrid.contentY = 0
+            return
+        }
+
+        animateGridScroll(0)
+    }
+
+    function isFirstGridRow(index) {
+        return index >= 0 && index < numColumns
+    }
+
     // While not necessary to do it here, this means we don't need to change it in both
     // touch and gamepad functions each time
     function gameActivated() {
@@ -181,6 +290,21 @@ id: root
     property int numColumns: settings.GridColumns ? settings.GridColumns : 6
     property int titleMargin: settings.AlwaysShowTitles === "Yes" ? vpx(30) : 0
 
+
+    Rectangle {
+    id: gridBackground
+
+        parent: gamegrid.contentItem
+        x: -gamegrid.x
+        y: 0
+        z: -1
+        width: root.width
+        height: Math.max(gamegrid.contentHeight, gamegrid.height)
+        color: theme.main
+    }
+
+
+
     GridSpacer {
     id: fakebox
 
@@ -203,7 +327,7 @@ id: root
             font.family: titleFont.name
             font.capitalization: Font.AllUppercase
             font.pixelSize: vpx(200)
-            color: "white"
+            color: theme.text
             anchors.centerIn: parent
         }
 
@@ -220,6 +344,84 @@ id: root
         }
     }
 
+    // Fixed hero (grid scrolls over this)
+    Item {
+    id: heroSection
+
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+        height: heroHeight
+        z: 0
+
+        Image {
+            id: heroBackground
+
+            anchors.fill: parent
+            property bool usePlatformFallback: false
+
+            readonly property string screenshotSource: root.heroScreenshotSource
+            readonly property string fallbackSource: root.platformContentSource
+
+            source: usePlatformFallback || !screenshotSource ? fallbackSource : screenshotSource
+            fillMode: Image.PreserveAspectCrop
+            smooth: true
+            asynchronous: true
+
+            onScreenshotSourceChanged: usePlatformFallback = false
+            onStatusChanged: {
+                if (status === Image.Error && !usePlatformFallback && fallbackSource && source !== fallbackSource)
+                    usePlatformFallback = true
+            }
+        }
+
+
+        Scanlines {}
+
+        Image {
+            id:platformlogo
+
+             anchors.centerIn: parent
+            source: "../assets/images/platform/" + platformFilename + ".png"
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+            visible: platformFilename !== ""
+        }
+
+        DropShadow {
+        id: platformlogoShadow
+
+            anchors.fill: platformlogo
+            horizontalOffset: 0
+            verticalOffset: 0
+            radius: 8.0
+            samples: 12
+            color: "#000000"
+            source: platformlogo
+            opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 0.4
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            visible: settings.GameLogo === "Show"
+        }
+
+
+        LinearGradient {
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            height: vpx(120)
+            start: Qt.point(0, 0)
+            end: Qt.point(0, height)
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: theme.main }
+            }
+        }
+    }
+
     Rectangle {
     id: header
 
@@ -229,7 +431,7 @@ id: root
             right:  parent.right
         }
         height: vpx(75)
-        color: theme.main
+        color: "transparent"
         z: 5
 
         HeaderBar {
@@ -241,29 +443,23 @@ id: root
             sfxNav.play();
             gamegrid.focus = true;
             gamegrid.currentIndex = 0;
+            resetHeroScroll();
         }
     }
 
+    NumberAnimation {
+    id: heroSnapAnim
 
-  
+        target: gamegrid
+        property: "contentY"
+        duration: 200
+        easing.type: Easing.OutCubic
+    }
 
+    GridView {
+    id: gamegrid
 
-    Item {
-    id: gridContainer
-
-        anchors {
-            top: header.bottom; topMargin: globalMargin
-            left: parent.left; leftMargin: globalMargin
-            right: parent.right; rightMargin: globalMargin
-            bottom: parent.bottom; bottomMargin: globalMargin
-        }
-
-       
-
-        GridView {
-        id: gamegrid
-
-            // Figuring out the aspect ratio for box art
+        // Figuring out the aspect ratio for box art
             property real cellHeightRatio: fakebox.paintedHeight / fakebox.paintedWidth
             property real savedCellHeight: {
                 if (settings.GridThumbnail == "Tall") {
@@ -278,7 +474,14 @@ id: root
 
             Component.onCompleted: {
                 currentIndex = storedCollectionGameIndex;
-                positionViewAtIndex(currentIndex, ListView.Visible);
+                alignGridToCurrentIndex(true);
+            }
+
+            onCurrentIndexChanged: {
+                if (isFirstGridRow(currentIndex))
+                    resetHeroScroll();
+                else
+                    alignGridToCurrentIndex();
             }
 
             populate: Transition {
@@ -286,28 +489,34 @@ id: root
             }
 
             anchors {
-                top: parent.top; left: parent.left; right: parent.right;
+                top: parent.top
+                topMargin: gridTopInset
+                left: parent.left; leftMargin: globalMargin
+                right: parent.right; rightMargin: globalMargin
                 bottom: parent.bottom; bottomMargin: helpMargin + vpx(40)
             }
-            cellWidth: width / numColumns
-            cellHeight: ((showBoxes) ? cellWidth * cellHeightRatio : savedCellHeight) + titleMargin
-            preferredHighlightBegin: vpx(0)
-            preferredHighlightEnd: gamegrid.height - helpMargin - vpx(40)
-            highlightRangeMode: GridView.ApplyRange
-            highlightMoveDuration: 200
-            highlight: highlightcomponent
-            keyNavigationWraps: false
-            displayMarginBeginning: cellHeight * 2
-            displayMarginEnd: cellHeight * 2
+            z: 2
+            clip: false
 
-            model: list.games
-            delegate: (showBoxes) ? boxartdelegate : dynamicDelegate
+        cellWidth: width / numColumns
+        cellHeight: ((showBoxes) ? cellWidth * cellHeightRatio : savedCellHeight) + titleMargin
+        preferredHighlightBegin: 0
+        preferredHighlightEnd: gamegrid.height - helpMargin - vpx(40)
+        highlightRangeMode: GridView.NoHighlightRange
+        highlightMoveDuration: 200
+        highlight: highlightcomponent
+        keyNavigationWraps: false
+        displayMarginBeginning: cellHeight * 2
+        displayMarginEnd: cellHeight * 2
 
-            Component {
+        model: list.games
+        delegate: (showBoxes) ? boxartdelegate : dynamicDelegate
+
+        Component {
             id: boxartdelegate
 
-                BoxArtGridItem {
-                    selected: GridView.isCurrentItem && root.focus
+            BoxArtGridItem {
+                selected: GridView.isCurrentItem && root.focus
                     gameData: modelData
 
                     width:      GridView.view.cellWidth
@@ -334,10 +543,10 @@ id: root
                 }
             }
 
-            Component {
-            id: dynamicDelegate
+        Component {
+        id: dynamicDelegate
 
-                DynamicGridItem {
+            DynamicGridItem {
                 id: dynamicdelegatecontainer
 
                     selected: GridView.isCurrentItem && root.focus
@@ -363,10 +572,10 @@ id: root
                         }
                     }
                 }
-            }
+        }
 
-            Component {
-            id: highlightcomponent
+        Component {
+        id: highlightcomponent
 
                 ItemHighlight {
                     width: gamegrid.cellWidth
@@ -377,21 +586,20 @@ id: root
                 }
             }
 
-            // Manually set the navigation this way so audio can play without performance hits
-            Keys.onUpPressed: {
+        // Manually set the navigation this way so audio can play without performance hits
+        Keys.onUpPressed: {
                 sfxNav.play();
                 if (currentIndex < numColumns) {
                     headercontainer.focus = true;
                     gamegrid.currentIndex = -1;
+                    resetHeroScroll();
                 } else {
                     moveCurrentIndexUp();
                 }
             }
-            Keys.onDownPressed:     { sfxNav.play(); moveCurrentIndexDown() }
-            Keys.onLeftPressed:     { sfxNav.play(); moveCurrentIndexLeft() }
-            Keys.onRightPressed:    { sfxNav.play(); moveCurrentIndexRight() }
-        }
-
+        Keys.onDownPressed:     { sfxNav.play(); moveCurrentIndexDown() }
+        Keys.onLeftPressed:     { sfxNav.play(); moveCurrentIndexLeft() }
+        Keys.onRightPressed:    { sfxNav.play(); moveCurrentIndexRight() }
     }
 
     Keys.onReleased: {
@@ -465,6 +673,7 @@ id: root
                 currentCollectionIndex = 0;
 
             gamegrid.currentIndex = 0;
+            resetHeroScroll();
             sfxToggle.play();
 
             // Reset our cached sorted games
@@ -481,6 +690,7 @@ id: root
                 currentCollectionIndex = api.collections.count - 1;
 
             gamegrid.currentIndex = 0;
+            resetHeroScroll();
             sfxToggle.play();
 
             // Reset our cached sorted games
@@ -511,10 +721,23 @@ id: root
         }
     }
 
+    property int collectionIndex: currentCollectionIndex
+    onCollectionIndexChanged: {
+        refreshHeroBackground()
+        resetHeroScroll()
+    }
+
+    Component.onCompleted: refreshHeroBackground()
+
     onFocusChanged: {
         if (focus) {
+            refreshHeroBackground()
             currentHelpbarModel = gridviewHelpModel;
             gamegrid.focus = true;
+            if (isFirstGridRow(gamegrid.currentIndex))
+                resetHeroScroll();
+            else
+                alignGridToCurrentIndex();
         }
     }
 }

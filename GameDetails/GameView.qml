@@ -191,7 +191,7 @@ id: root
         anchors { fill: parent }
     }
 
-    // Background
+    // // Background
     Image {
     id: screenshot
 
@@ -213,7 +213,17 @@ id: root
         property var randoScreenshot: game ? game.assets.screenshotList[randoScreenshotNumber] : ""
         property var randoFanart: game ? game.assets.backgroundList[randoFanartNumber] : ""
         property var actualBackground: (settings.GameBackground === "Screenshot") ? randoScreenshot : Utils.fanArt(game) || randoFanart;
-        source: actualBackground || ""
+
+        function getActualBackground() {
+            if (settings.GameBackground === "Screenshot")
+                return randoScreenshot || Utils.fanArt(game) || randoFanart;
+            else if (settings.GameBackground === "Hero")
+                return game.assets.cartridge || randoScreenshot || Utils.fanArt(game) || randoFanart;
+            else
+                return Utils.fanArt(game) || randoFanart;
+        }
+
+        source: randoScreenshot || ""
         fillMode: Image.PreserveAspectCrop
         smooth: true
         Behavior on opacity { NumberAnimation { duration: 500 } }
@@ -229,20 +239,11 @@ id: root
         visible: blurBG
     }
 
-    // Scanlines
-    Image {
-    id: scanlines
-
-        anchors.fill: parent
-        source: "../assets/images/scanlines_v3.png"
-        asynchronous: true
-        opacity: 0.2
-        visible: !iamsteam && (settings.ShowScanlines == "Yes")
-    }
+    Scanlines {}
 
     // Clear logo
     Image {
-    id: logo
+    id: gamelogo
 
         anchors { 
             top: parent.top; //topMargin: vpx(70)
@@ -250,7 +251,7 @@ id: root
         }
         width: vpx(500)
         height: vpx(450) + header.height
-        source: game ? Utils.logo(game) : ""
+        source: root.game ? Utils.logo(game) : ""
         fillMode: Image.PreserveAspectFit
         asynchronous: true
         opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
@@ -263,11 +264,12 @@ id: root
     id: logoMeta
 
         gameData: game
-        showGenre: false
+        showGenre: true
+        showTitle: true
         anchors {
-            left: logo.left
+            left: gamelogo.left
             right: parent.right; rightMargin: vpx(70)
-            bottom: logo.bottom; bottomMargin: vpx(20)
+            bottom: gamelogo.bottom; bottomMargin: vpx(20)
         }
         opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
         Behavior on opacity { NumberAnimation { duration: 200 } }
@@ -278,13 +280,13 @@ id: root
     DropShadow {
     id: logoshadow
 
-        anchors.fill: logo
+        anchors.fill: gamelogo
         horizontalOffset: 0
         verticalOffset: 0
         radius: 8.0
         samples: 12
         color: "#000000"
-        source: logo
+        source: gamelogo
         opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 0.4
         Behavior on opacity { NumberAnimation { duration: 200 } }
         visible: settings.GameLogo === "Show"
@@ -297,10 +299,10 @@ id: root
         text: game.title
         
         anchors {
-            top:    logo.top;
-            left:   logo.left;//    leftMargin: globalMargin
+            top:    gamelogo.top;
+            left:   gamelogo.left;//    leftMargin: globalMargin
             right:  parent.right;
-            bottom: logo.bottom
+            bottom: gamelogo.bottom
         }
         
         color: theme.text
@@ -312,7 +314,7 @@ id: root
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
         lineHeight: 0.8
-        visible: logo.source === "" || settings.GameLogo === "Text only"
+        visible: gamelogo.source === "" || settings.GameLogo === "Text only"
         opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
     }
 
@@ -340,6 +342,7 @@ id: root
             left: parent.left; right: parent.right
             top: bggradient.bottom; bottom: parent.bottom
         }
+        visible: content.currentIndex == 0
     }
 
     
@@ -401,15 +404,7 @@ id: root
         }
         height: vpx(75)
 
-        // Platform logo
-        Image {
-        id: logobg
-
-            anchors.fill: platformlogo
-            source: "../assets/images/gradient.png"
-            asynchronous: true
-            visible: false
-        }
+      
 
         Image {
         id: platformlogo
@@ -420,26 +415,15 @@ id: root
                 left: parent.left; leftMargin: globalMargin
             }
             fillMode: Image.PreserveAspectFit
-            source: "../assets/images/logospng/" + Utils.processPlatformName(game.collections.get(0).shortName) + ".png"
+            // source: "../assets/images/logospng/" + Utils.processPlatformName(game.collections.get(0).shortName) + ".png"
+            source: "../assets/images/platform/" + Utils.processPlatformName(game.collections.get(0).shortName) + ".png"
             sourceSize: Qt.size(width, height)
             smooth: true
-            visible: false
-            asynchronous: true           
+            asynchronous: true       
+            opacity: 0.8    
         }
 
-        OpacityMask {
-            anchors.fill: logobg
-            source: logobg
-            maskSource: platformlogo
-            
-            // Mouse/touch functionality
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onClicked: previousScreen();
-            }
-        }
-
+       
         // Platform title
         Text {
         id: softwareplatformtitle
@@ -469,7 +453,6 @@ id: root
                 onClicked: previousScreen();
             }
         }
-        z: 10
     }
 
 
@@ -548,14 +531,23 @@ id: root
         }
     }
 
+
+    Rectangle {
+    id: menuBackground
+
+        anchors.fill: parent
+        color: theme.main
+        visible: content.currentIndex !== 0
+    }
+
     // Full list
     ObjectModel {
     id: extrasModel
+    
 
         // Game menu
         ListView {
         id: menu
-        z: 10
 
             property bool selected: parent.focus
             focus: selected

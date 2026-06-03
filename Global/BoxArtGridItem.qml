@@ -182,7 +182,7 @@ id: root
 
         text: modelData.title
         anchors { fill: parent; margins: vpx(10) }
-        color: "white"
+        color: theme.text
         scale: selected ? 1.1 : 1
         Behavior on opacity { NumberAnimation { duration: 100 } }
         font.pixelSize: vpx(18)

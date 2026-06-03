@@ -23,10 +23,15 @@ Item {
 id: infocontainer
 
     property var gameData: currentGame
+    property bool showTitle: true
+    property bool showDescription: true
+    property bool showGenre: true
 
     // Game title
     Text {
     id: gametitle
+
+        visible: infocontainer.showTitle
         
         text: gameData ? gameData.title : ""
         
@@ -50,8 +55,9 @@ id: infocontainer
     id: metarow
 
         gameData: infocontainer.gameData
+        showGenre: infocontainer.showGenre
         anchors {
-            top: gametitle.bottom
+            top: infocontainer.showTitle ? gametitle.bottom : parent.top
             left: parent.left
             right: parent.right
         }
@@ -61,6 +67,8 @@ id: infocontainer
     PegasusUtils.AutoScroll
     {
     id: gameDescription
+
+        visible: infocontainer.showDescription
     
         anchors {
             left: parent.left; 

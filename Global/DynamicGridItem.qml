@@ -93,63 +93,82 @@ id: root
             clip: true
             color: "transparent"
 
-        Image {
-        id: screenshot
+            Item {
+                anchors.fill: parent
+                anchors.margins: vpx(2)
 
-            anchors.fill: parent
-            anchors.margins: vpx(2)
-            source: modelData ? modelData.assets.screenshots[0] || modelData.assets.background || "" : ""
-            fillMode: Image.PreserveAspectCrop
-            sourceSize: Qt.size(screenshot.width, screenshot.height)
-            smooth: false
-            asynchronous: true
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-        }
+                Image {
+                id: screenshot
 
-        Image {
-        id: favelogo
+                    anchors.fill: parent
+                    source: modelData ? modelData.assets.screenshots[0] || modelData.assets.background || "" : ""
+                    fillMode: Image.PreserveAspectCrop
+                    sourceSize: Qt.size(width, height)
+                    smooth: false
+                    asynchronous: true
+                    visible: false
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
+                }
 
-            anchors.fill: parent
-            anchors.centerIn: parent
-            anchors.margins: root.width/10
-            property var logoImage: (gameData && gameData.collections.get(0).shortName === "retropie") ? gameData.assets.boxFront : (gameData.collections.get(0).shortName === "steam") ? logo(gameData) : gameData.assets.logo
-            source: modelData ? logoImage || "" : ""
-            sourceSize: Qt.size(favelogo.width, favelogo.height)
-            fillMode: Image.PreserveAspectFit
-            asynchronous: true
-            smooth: true
-            scale: selected ? 1.1 : 1
-            Behavior on scale { NumberAnimation { duration: 100 } }
-            z: 10
-        }
+                Rectangle {
+                id: screenshotMask
 
-        Rectangle {
-        id: overlay
-        
-            anchors.fill: parent
-            color: screenshot.source == "" ? theme.secondary : "black"
-            opacity: screenshot.source == "" ? 1 : selected ? 0.1 : 0.2
-            radius: vpx(10)
-        }
-        
-        Rectangle {
-        id: regborder
+                    anchors.fill: parent
+                    radius: vpx(10)
+                    color: "white"
+                    visible: false
+                }
 
-            anchors.fill: parent
-            color: "transparent"
-            border.width: vpx(1)
-            border.color: "white"
-            opacity: 0.1
-            radius: vpx(10)
-        }
+                OpacityMask {
+                    anchors.fill: parent
+                    source: screenshot
+                    maskSource: screenshotMask
+                    opacity: screenshot.opacity
+                } 
 
-        AgeRatingBadge {
-            gameData: root.gameData
-            showBadge: settings.ShowAgeCategoryBadge === "Yes"
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.margins: vpx(7)
-        }
+                Scanlines { 
+                    rounded: true
+                }
+            }
+
+            
+
+            Image {
+            id: favelogo
+
+                property var logoImage: (gameData && gameData.collections.get(0).shortName === "retropie") ? gameData.assets.boxFront : (gameData.collections.get(0).shortName === "steam") ? logo(gameData) : gameData.assets.logo
+               
+                anchors.fill: parent
+                anchors.centerIn: parent
+                anchors.margins: root.width/10
+                source: modelData ? logoImage || "" : ""
+                sourceSize: Qt.size(favelogo.width, favelogo.height)
+                fillMode: Image.PreserveAspectFit
+                asynchronous: true
+                smooth: true
+                scale: selected ? 1.1 : 1
+                Behavior on scale { NumberAnimation { duration: 100 } }
+                z: 10
+            }
+
+            Rectangle {
+            id: overlay
+            
+                anchors.fill: parent
+                color: theme.secondary
+                opacity: screenshot.source == "" ? 1 : 0 
+                radius: vpx(10)
+                border.width: vpx(1)
+                border.color: theme.border
+            }       
+    
+            AgeRatingBadge {
+                gameData: root.gameData
+                showBadge: settings.ShowAgeCategoryBadge === "Yes"
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: vpx(7)
+            }
 
         }
         
@@ -200,7 +219,7 @@ id: root
 
         text: modelData.title
         anchors { fill: parent; margins: vpx(10) }
-        color: "white"
+        color: theme.text
         scale: selected ? 1.1 : 1
         Behavior on opacity { NumberAnimation { duration: 100 } }
         font.pixelSize: vpx(18)

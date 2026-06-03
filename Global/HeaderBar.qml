@@ -16,7 +16,7 @@
 
 import QtQuick 2.12
 import QtQuick.Layouts 1.11
-import QtGraphicalEffects 1.10
+import QtGraphicalEffects 1.12
 import QtQml.Models 2.1
 import "../utils.js" as Utils
 
@@ -32,50 +32,24 @@ id: root
         searchActive = !searchActive;
     }
 
+    LinearGradient {
+        id: headerScrim
+
+        anchors.fill: parent
+        z: 0
+        start: Qt.point(0, 0)
+        end: Qt.point(0, height)
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#E6242629" }
+            GradientStop { position: 1.0; color: "#00242629" }
+        }
+    }
+
     Item {
     id: container
 
         anchors.fill: parent
-
-        // Platform logo
-        Image {
-        id: logobg
-
-            anchors.fill: platformlogo
-            source: "../assets/images/gradient.png"
-            asynchronous: true
-            visible: false
-        }
-
-        Image {
-        id: platformlogo
-
-            anchors {
-                top: parent.top; topMargin: vpx(20)
-                bottom: parent.bottom; bottomMargin: vpx(20)
-                left: parent.left; leftMargin: globalMargin
-            }
-            fillMode: Image.PreserveAspectFit
-            source: "../assets/images/logospng/" + Utils.processPlatformName(currentCollection.shortName) + ".png"
-            sourceSize: Qt.size(parent.width, parent.height)
-            smooth: true
-            visible: false
-            asynchronous: true           
-        }
-
-        OpacityMask {
-            anchors.fill: logobg
-            source: logobg
-            maskSource: platformlogo
-            visible: titleText === ""
-
-            // Mouse/touch functionality
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: previousScreen();
-            }
-        }
+        z: 1
 
         // Platform title
         Text {
@@ -109,6 +83,8 @@ id: root
 
         ObjectModel {
         id: headermodel
+
+
 
             // Search bar
             Item {

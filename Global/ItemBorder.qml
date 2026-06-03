@@ -67,7 +67,7 @@ id: root
     }
 
     OpacityMask {
-        anchors.fill: border
+        anchors.fill: parent
         source: border
         maskSource: mask
         visible: false
@@ -89,7 +89,7 @@ id: root
         height: bubbletitle.contentHeight + vpx(8)
         color: theme.secondary
         anchors {
-            top: border.bottom; topMargin: vpx(7)
+            top: clipShape.bottom; topMargin: vpx(7)
         }
         anchors.horizontalCenter: parent.horizontalCenter
         radius: height/2

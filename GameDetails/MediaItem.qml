@@ -106,6 +106,7 @@ id: root
             fillMode: Image.PreserveAspectFit
             visible: false
             asynchronous: true
+            
         }
 
         OpacityMask {

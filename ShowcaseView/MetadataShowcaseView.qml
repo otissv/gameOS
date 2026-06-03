@@ -239,7 +239,7 @@ id: root
             font.family: titleFont.name
             font.capitalization: Font.AllUppercase
             font.pixelSize: vpx(200)
-            color: "white"
+            color: theme.text
             anchors.centerIn: parent
         }
 
@@ -264,7 +264,7 @@ id: root
             right: parent.right
         }
         height: vpx(75)
-        color: theme.main
+        color: "transparent"
         z: 5
 
         HeaderBar {

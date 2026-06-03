@@ -21,6 +21,7 @@ import QtGraphicalEffects 1.0
 import QtMultimedia 5.9
 import QtQml.Models 2.10
 import "../Global"
+import "../GameDetails"
 import "../GridView"
 import "../Lists"
 import "../utils.js" as Utils
@@ -40,7 +41,7 @@ id: root
     ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub; kidsOnly: root.kidsOnly }
     ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre; kidsOnly: root.kidsOnly }
 
-    property var featuredCollection: listFavorites
+    property var randomFeaturedGames: []
     property var collection1: getCollection(settings.ShowcaseCollection1, settings.ShowcaseCollection1_Thumbnail)
     property var collection2: getCollection(settings.ShowcaseCollection2, settings.ShowcaseCollection2_Thumbnail)
     property var collection3: getCollection(settings.ShowcaseCollection3, settings.ShowcaseCollection3_Thumbnail)
@@ -115,7 +116,47 @@ id: root
     property string randoPub: (Utils.returnRandom(Utils.uniqueValuesArray('publisher', kidsOnly)) || '')
     property string randoGenre: Utils.returnRandom(Utils.uniqueGameValues('genreList', kidsOnly)) || ''
 
-    property bool ftue: featuredCollection.games.count == 0
+    function refreshRandomFeaturedGames() {
+        var pool = api.allGames.toVarArray();
+        if (kidsOnly)
+            pool = pool.filter(function(game) { return Utils.isKidsOnlyGame(game); });
+
+        var withScreenshots = pool.filter(function(game) {
+            return (game.assets.screenshots && game.assets.screenshots.length)
+                || (game.assets.screenshotList && game.assets.screenshotList.length);
+        });
+        if (withScreenshots.length)
+            pool = withScreenshots;
+
+        pool = Utils.shuffleArray(pool.slice());
+        randomFeaturedGames = pool.slice(0, Math.min(5, pool.length));
+        if (featuredlist.currentIndex >= randomFeaturedGames.length)
+            featuredlist.currentIndex = Math.max(0, randomFeaturedGames.length - 1);
+    }
+
+    function featuredScreenshot(game) {
+        if (!game || !game.assets)
+            return "";
+        if (game.assets.screenshots && game.assets.screenshots.length)
+            return game.assets.screenshots[Math.floor(Math.random() * game.assets.screenshots.length)];
+        if (game.assets.textures && game.assets.textures.length)
+            return game.assets.textures[Math.floor(Math.random() * game.assets.textures.length)];
+        if (game.assets.screenshotList && game.assets.screenshotList.length)
+            return game.assets.screenshotList[Math.floor(Math.random() * game.assets.screenshotList.length)];
+        return game.assets.background || Utils.fanArt(game) || "";
+    }
+
+    Timer {
+        interval: 600000
+        running: true
+        repeat: true
+        onTriggered: refreshRandomFeaturedGames()
+    }
+
+    onKidsOnlyChanged: refreshRandomFeaturedGames()
+    Component.onCompleted: refreshRandomFeaturedGames()
+
+    property bool ftue: randomFeaturedGames.length == 0
 
     function storeIndices(secondary) {
         storedHomePrimaryIndex = mainList.currentIndex;
@@ -127,91 +168,7 @@ id: root
     
     anchors.fill: parent
 
-    Item {
-    id: ftueContainer
-
-        width: parent.width
-        height: vpx(360)
-        visible: ftue
-        opacity: {
-            switch (mainList.currentIndex) {
-                case 0:
-                    return 1;
-                case 1:
-                    return 0.3;
-                case 2:
-                    return 0.1;
-                case -1:
-                    return 0.3;
-                default:
-                    return 0
-            }
-        }
-        Behavior on opacity { PropertyAnimation { duration: 1000; easing.type: Easing.OutQuart; easing.amplitude: 2.0; easing.period: 1.5 } }
-
-        /*Image {
-            anchors.fill: parent
-            source: "../assets/images/ftueBG01.jpeg"
-            sourceSize { width: root.width; height: root.height}
-            fillMode: Image.PreserveAspectCrop
-            smooth: true
-            asynchronous: true
-        }*/
-
-        Rectangle {
-            anchors.fill: parent
-            color: "black"
-            opacity: 0.5
-        }
-
-        Video {
-        id: videocomponent
-
-            anchors.fill: parent
-            source: "../assets/video/ftue.mp4"
-            fillMode: VideoOutput.PreserveAspectCrop
-            muted: true
-            loops: MediaPlayer.Infinite
-            autoPlay: true
-
-            OpacityAnimator {
-                target: videocomponent;
-                from: 0;
-                to: 1;
-                duration: 1000;
-                running: true;
-            }
-
-        }
-
-        Image {
-        id: ftueLogo
-
-            width: vpx(350)
-            anchors { left: parent.left; leftMargin: globalMargin }
-            source: "../assets/images/gameOS-logo.png"
-            sourceSize: Qt.size(parent.width, parent.height)
-            fillMode: Image.PreserveAspectFit
-            smooth: true
-            asynchronous: true
-            anchors.centerIn: parent
-        }
-
-        Text {
-            text: "Try adding some favorite games"
-            
-            horizontalAlignment: Text.AlignHCenter
-            anchors { bottom: parent.bottom; bottomMargin: vpx(75) }
-            width: parent.width
-            height: contentHeight
-            color: theme.text
-            font.family: subtitleFont.name
-            font.pixelSize: vpx(16)
-            opacity: 0.5
-            visible: false
-        }
-    }
-
+   
     Item {
     id: header
 
@@ -257,7 +214,7 @@ id: root
             Text {
                 anchors.centerIn: parent
                 text: "Maxx"
-                color: focus ? theme.accent : "white"
+                color: focus ? theme.accent : theme.text
                 font.family: subtitleFont.name
                 font.pixelSize: vpx(14)
                 font.bold: true
@@ -313,7 +270,7 @@ id: root
             Text {
                 anchors.centerIn: parent
                 text: "Maxx Kids"
-                color: focus ? theme.accent : "white"
+                color: focus ? theme.accent : theme.text
                 font.family: subtitleFont.name
                 font.pixelSize: vpx(14)
                 font.bold: true
@@ -367,7 +324,7 @@ id: root
             Text {
                 anchors.centerIn: parent
                 text: "Genre"
-                 color: focus ? theme.accent : "white"
+                 color: focus ? theme.accent : theme.text
                 font.family: subtitleFont.name
                 font.pixelSize: vpx(14)
                 font.bold: true
@@ -428,7 +385,7 @@ id: root
             Text {
                 anchors.centerIn: parent
                 text: "Developer"
-                color: focus ? theme.accent : "white"
+                color: focus ? theme.accent : theme.text
                 font.family: subtitleFont.name
                 font.pixelSize: vpx(14)
                 font.bold: true
@@ -469,7 +426,7 @@ id: root
             width: height
             height: vpx(40)
             anchors { right: parent.right; rightMargin: globalMargin }
-            color: focus ? theme.accent : "white"
+            color: focus ? theme.accent : theme.text
             radius: height/2
             opacity: focus ? 1 : 0.2
             anchors.verticalCenter: parent.verticalCenter
@@ -529,10 +486,10 @@ id: root
         id: featuredlist
 
             property bool selected: ListView.isCurrentItem
+            
             focus: selected
-            width: parent.width
-            height: vpx(360)
-            spacing: vpx(0)
+            width: root.width
+            height: root.height - header.height  - header.height - helpMargin -  globalMargin
             orientation: ListView.Horizontal
             clip: true
             preferredHighlightBegin: vpx(0)
@@ -545,73 +502,101 @@ id: root
             currentIndex: (storedHomePrimaryIndex == 0) ? storedHomeSecondaryIndex : 0
             Component.onCompleted: positionViewAtIndex(currentIndex, ListView.Visible)
             
-            model: !ftue ? featuredCollection.games : 0
+            model: randomFeaturedGames
             delegate: featuredDelegate
 
             Component {
             id: featuredDelegate
 
-                AnimatedImage {
-                id: background
-
+                Item {
                     property bool selected: ListView.isCurrentItem && featuredlist.focus
                     width: featuredlist.width
                     height: featuredlist.height
-                    source: Utils.fanArt(modelData);
-                    //sourceSize { width: featuredlist.width; height: featuredlist.height }
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                        
-                    onSelectedChanged: {
-                        if (selected)
-                            logoAnim.start()
+
+                    Image {
+                        id: background
+                        anchors.fill: parent
+                        source: featuredScreenshot(modelData)
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        smooth: true
                     }
 
+                    Scanlines {}
+
                     Rectangle {
-                        
                         anchors.fill: parent
                         color: "black"
                         opacity: featuredlist.focus ? 0 : 0.5
                         Behavior on opacity { PropertyAnimation { duration: 150; easing.type: Easing.OutQuart; easing.amplitude: 2.0; easing.period: 1.5 } }
                     }
 
-                    AnimatedImage {
-                    id: specialLogo
+                    LinearGradient {
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            bottom: parent.bottom
+                        }
+                        height: vpx(180)
+                        start: Qt.point(0, 0)
+                        end: Qt.point(0, height)
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: "transparent" }
+                            GradientStop { position: 1.0; color: "#CC000000" }
+                        }
+                    }
 
-                        width: parent.height - vpx(20)
-                        height: width
-                        source: Utils.logo(modelData)
+
+                    Image {
+                    id: featuredMarquee
+
+                        anchors {
+                            top: parent.top
+                            left: parent.left
+                            bottom: featuredGameInfo.top
+                            topMargin: vpx(32)
+                            leftMargin: globalMargin
+                            rightMargin: globalMargin
+                        }
+                        height: vpx(120)
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
-                        //sourceSize: Qt.size(specialLogo.width, specialLogo.height)
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        opacity: featuredlist.focus ? 1 : 0.5
-
-                        PropertyAnimation { 
-                        id: logoAnim; 
-                            target: specialLogo; 
-                            properties: "y"; 
-                            from: specialLogo.y-vpx(50); 
-                            duration: 100
-                        }
+                        smooth: true
+                        source: modelData ? (modelData.assets.marquee || Utils.logo(modelData)) : ""
+                        visible: source !== ""
+                        Behavior on opacity { PropertyAnimation { duration: 150; easing.type: Easing.OutQuart; easing.amplitude: 2.0; easing.period: 1.5 } }
                     }
 
-                    // Mouse/touch functionality
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: settings.MouseHover == "Yes"
-                        onEntered: { sfxNav.play(); mainList.currentIndex = 0; }
-                        onClicked: {
-                            if (selected)
-                                gameDetails(modelData);  
-                            else
-                                mainList.currentIndex = 0;
-                        }
+                    DropShadow {
+                        anchors.fill: featuredMarquee
+                        horizontalOffset: 0
+                        verticalOffset: 0
+                        radius: 8.0
+                        samples: 12
+                        color: "#000000"
+                        source: featuredMarquee
+                        visible: featuredMarquee.visible
+                        opacity: featuredlist.focus ? 0.6 : 0.3
                     }
+
+
+                    GameMetaRow {
+                    id: featuredGameInfo
+
+                        anchors {
+                            left: parent.left
+                            bottom: parent.bottom
+                            leftMargin: globalMargin
+                            rightMargin: globalMargin
+                        }
+                        gameData: modelData
+                        showGenre: false
+                        showTitle: true
+                    }
+
                 }
             }
-            
+
             Row {
             id: blips
 
@@ -630,7 +615,6 @@ id: root
                 }
             }
 
-            // List specific input
             Keys.onUpPressed: {
                 sfxNav.play();
                 genrebutton.forceActiveFocus();
@@ -638,15 +622,22 @@ id: root
             Keys.onLeftPressed: { sfxNav.play(); decrementCurrentIndex() }
             Keys.onRightPressed: { sfxNav.play(); incrementCurrentIndex() }
             Keys.onPressed: {
-                // Accept
                 if (api.keys.isAccept(event) && !event.isAutoRepeat) {
                     event.accepted = true;
                     storedHomeSecondaryIndex = featuredlist.currentIndex;
-                    if (!ftue)
-                        gameDetails(featuredCollection.currentGame(currentIndex));            
+                    if (!ftue && randomFeaturedGames.length)
+                        gameDetails(randomFeaturedGames[currentIndex]);
                 }
             }
         }
+
+        Rectangle {
+            id: spacer1
+            width: vpx(100); height: globalMargin
+            color: "transparent"
+            enabled: false
+        }
+
         
         // Collections list
         ListView {
@@ -654,14 +645,17 @@ id: root
 
             property bool selected: ListView.isCurrentItem
             property int myIndex: ObjectModel.index
+
+            anchors {
+                left: parent.left; leftMargin: globalMargin 
+                right: parent.right; rightMargin: globalMargin
+            }
+
+
             focus: selected
             width: root.width
             height: vpx(100) + globalMargin * 2
-            anchors {
-                left: parent.left; leftMargin: globalMargin
-                right: parent.right; rightMargin: globalMargin
-            }
-            spacing: vpx(10)
+            spacing: vpx(16)
             orientation: ListView.Horizontal
             preferredHighlightBegin: vpx(0)
             preferredHighlightEnd: parent.width - vpx(60)
@@ -688,31 +682,15 @@ id: root
                 property bool selected: ListView.isCurrentItem && platformlist.focus
                 width: (root.width - globalMargin * 2) / 7.0
                 height: width * settings.WideRatio
-                color: selected ? theme.accent : theme.secondary
+                color: theme.secondary
                 scale: selected ? 1.1 : 1
                 Behavior on scale { NumberAnimation { duration: 100 } }
                 border.width: vpx(1)
-                border.color: "#19FFFFFF"
-
+                border.color: selected ? theme.accent : theme.border
+                radius: vpx(10)
                 anchors.verticalCenter: parent.verticalCenter
 
 				property var platformFilename: Utils.processPlatformName(modelData.shortName)
-
-                Image {
-                id: collectionlogosvg
-
-                    anchors.fill: parent
-                    anchors.centerIn: parent
-                    anchors.margins: vpx(15)
-                    source: "../assets/images/logossvg/" + platformFilename + ".svg"
-                    sourceSize: Qt.size(collectionlogosvg.width, collectionlogosvg.height)
-                    fillMode: Image.PreserveAspectFit
-                    asynchronous: true
-                    smooth: true
-                    opacity: selected ? 1 : 0.2
-                    scale: selected ? 1.1 : 1
-                    Behavior on scale { NumberAnimation { duration: 100 } }
-                }
 
                 Image {
                 id: collectionlogo
@@ -720,15 +698,14 @@ id: root
                     anchors.fill: parent
                     anchors.centerIn: parent
                     anchors.margins: vpx(15)
-                    source: "../assets/images/logospng/" + platformFilename + ".png"
+                    source: "../assets/images/platform/" + platformFilename + ".png"
                     sourceSize: Qt.size(collectionlogo.width, collectionlogo.height)
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
                     smooth: true
-                    opacity: selected ? 1 : 0.2
+                    opacity: selected ? 1 : 0.5
                     scale: selected ? 1.1 : 1
                     Behavior on scale { NumberAnimation { duration: 100 } }
-                    visible: collectionlogosvg.status == Image.Error
                 }
 
                 Text {
@@ -744,11 +721,8 @@ id: root
                     font.bold: true
                     style: Text.Outline; styleColor: theme.main
 
-					// show text when there's no PNG or SVG
-					visible: {
-						if (collectionlogo.status == Image.Error && collectionlogosvg.status == Image.Error) return true;
-						else return false;
-					}
+					// show text when there's no PNG logo
+					visible: collectionlogo.status == Image.Error
                     anchors.centerIn: parent
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
@@ -790,6 +764,14 @@ id: root
             }
 
         }
+
+        Rectangle {
+            id: spacer2
+            width: vpx(100); height: globalMargin * 2
+            color: "transparent"
+            enabled: false
+        }
+
 
         HorizontalCollection {
         id: list1

@@ -64,7 +64,7 @@ id: root
         anchors.margins: vpx(1)
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        color: "white"
+        color: theme.text
         font.pixelSize: vpx(16)
         font.family: subtitleFont.name
     }
