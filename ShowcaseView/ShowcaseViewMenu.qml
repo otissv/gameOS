@@ -153,6 +153,13 @@ id: root
         onTriggered: refreshRandomFeaturedGames()
     }
 
+    Timer {
+        interval: 0
+        running: true
+        repeat: false
+        onTriggered: restoreMainListPosition()
+    }
+
     onKidsOnlyChanged: refreshRandomFeaturedGames()
     Component.onCompleted: refreshRandomFeaturedGames()
 
@@ -162,6 +169,17 @@ id: root
         storedHomePrimaryIndex = mainList.currentIndex;
         if (secondary)
             storedHomeSecondaryIndex = secondary;
+    }
+
+    function restoreMainListPosition() {
+        mainList.currentIndex = storedHomePrimaryIndex;
+
+        if (storedHomePrimaryIndex === 0) {
+            mainList.contentY = 0;
+            return;
+        }
+
+        mainList.positionViewAtIndex(storedHomePrimaryIndex, ListView.Visible);
     }
 
     Component.onDestruction: storeIndices();
@@ -922,12 +940,16 @@ id: root
         model: mainModel
         focus: !genrebutton.activeFocus && !settingsbutton.activeFocus && !kidsbutton.activeFocus && !homebutton.activeFocus
         highlightMoveDuration: 200
-        highlightRangeMode: ListView.ApplyRange 
-        preferredHighlightBegin: header.height
-        preferredHighlightEnd: parent.height - (helpMargin * 2)
+        highlightRangeMode: currentIndex === 0 ? ListView.NoHighlightRange : ListView.ApplyRange
+        preferredHighlightBegin: currentIndex === 0 ? 0 : header.height
+        preferredHighlightEnd: currentIndex === 0 ? height : parent.height - (helpMargin * 2)
         snapMode: ListView.SnapOneItem
         keyNavigationWraps: true
         currentIndex: storedHomePrimaryIndex
+        onCurrentIndexChanged: {
+            if (currentIndex === 0)
+                contentY = 0;
+        }
         
         cacheBuffer: 1000
         footer: Item { height: helpMargin }
