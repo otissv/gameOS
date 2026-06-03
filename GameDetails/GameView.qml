@@ -415,7 +415,6 @@ id: root
                 left: parent.left; leftMargin: globalMargin
             }
             fillMode: Image.PreserveAspectFit
-            // source: "../assets/images/logospng/" + Utils.processPlatformName(game.collections.get(0).shortName) + ".png"
             source: "../assets/images/platform/" + Utils.processPlatformName(game.collections.get(0).shortName) + ".png"
             sourceSize: Qt.size(width, height)
             smooth: true
