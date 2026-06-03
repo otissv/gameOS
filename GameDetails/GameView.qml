@@ -272,7 +272,6 @@ id: root
             bottom: gamelogo.bottom; bottomMargin: vpx(20)
         }
         opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
-        Behavior on opacity { NumberAnimation { duration: 200 } }
         visible: opacity !== 0
         z: 10
     }
@@ -542,7 +541,6 @@ id: root
     // Full list
     ObjectModel {
     id: extrasModel
-    
 
         // Game menu
         ListView {
