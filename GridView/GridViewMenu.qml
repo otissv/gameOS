@@ -365,7 +365,7 @@ id: root
             readonly property string screenshotSource: root.heroScreenshotSource
             readonly property string fallbackSource: root.platformContentSource
 
-            source: usePlatformFallback || !screenshotSource ? fallbackSource : screenshotSource
+            source: usePlatformFallback || s!screenshotSource ? fallbackSource : screenshotSource
             fillMode: Image.PreserveAspectCrop
             smooth: true
             asynchronous: true

@@ -37,11 +37,11 @@ id: root
         }
         ListElement {
             settingName: "Hide logo when thumbnail video plays"
-            setting: "No,Yes"
+            setting: "Yes,No"
         }
         ListElement {
             settingName: "Animate highlight"
-            setting: "No,Yes"
+            setting: "Yes,No"
         }
         ListElement {
             settingName: "Enable mouse hover"
@@ -99,11 +99,11 @@ id: root
         }
         ListElement {
             settingName: "Collection 1 - Thumbnail"
-            setting: "Wide,Tall,Square"
+            setting: "Tall,Wide,Square"
         }
         ListElement {
             settingName: "Collection 2"
-            setting: "Favorites,Recently Played,Most Played,Recommended,Top by Publisher,Top by Genre, None,"
+            setting: "Recommended,Favorites,Recently Played,Most Played,Top by Publisher,Top by Genre, None,"
         }
         ListElement {
             settingName: "Collection 2 - Thumbnail"
@@ -127,7 +127,7 @@ id: root
         }
         ListElement {
             settingName: "Collection 5"
-            setting: "Top by Genre,None,Favorites,Recently Played,Most Played,Recommended,Top by Publisher"
+            setting: "None, Top by Genre,Favorites,Recently Played,Most Played,Recommended,Top by Publisher"
         }
         ListElement {
             settingName: "Collection 5 - Thumbnail"
@@ -152,7 +152,7 @@ id: root
         }
         ListElement {
             settingName: "Number of columns"
-            setting: "3,4,5,6,7,8"
+            setting: "4,5,6,7,8,3"
         }
     }
 
@@ -188,7 +188,7 @@ id: root
         }
         ListElement {
             settingName: "Randomize Background"
-            setting: "No,Yes"
+            setting: "Yes,No"
         }
         ListElement {
             settingName: "Blur Background"
@@ -198,7 +198,7 @@ id: root
 
     property var gamePage: {
         return {
-            pageName: "Game details",
+            pageName: "Game",
             listmodel: gameSettingsModel
         }
     }

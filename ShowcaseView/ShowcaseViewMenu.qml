@@ -633,7 +633,7 @@ id: root
 
         Rectangle {
             id: spacer1
-            width: vpx(100); height: globalMargin
+            width: vpx(100); height: vpx(10)
             color: "transparent"
             enabled: false
         }
@@ -767,7 +767,7 @@ id: root
 
         Rectangle {
             id: spacer2
-            width: vpx(100); height: globalMargin * 2
+            width: vpx(50); height: globalMargin * 2
             color: "transparent"
             enabled: false
         }
