@@ -39,7 +39,7 @@ id: root
             ? "../assets/images/platform/" + root.platformFilename + "-content.jpg"
             : ""
     )
-    property string heroScreenshotSource: ""
+    property string heroScreenshotSource: pickRandomHeroScreenshot() 
 
     function pickRandomHeroScreenshot() {
         var count = list.games.count
@@ -64,17 +64,6 @@ id: root
         }
 
         return ""
-    }
-
-    function refreshHeroBackground() {
-        var useRandomHero = api.memory.has("Random platform hero")
-            ? api.memory.get("Random platform hero") === "Yes"
-            : false
-
-        if (useRandomHero)
-            heroScreenshotSource = pickRandomHeroScreenshot()
-        else
-            heroScreenshotSource = ""
     }
 
     function gridRowForIndex(index) {
@@ -365,16 +354,10 @@ id: root
             readonly property string screenshotSource: root.heroScreenshotSource
             readonly property string fallbackSource: root.platformContentSource
 
-            source: usePlatformFallback || !screenshotSource ? fallbackSource : screenshotSource
+            source: screenshotSource ? screenshotSource: fallbackSource 
             fillMode: Image.PreserveAspectCrop
             smooth: true
             asynchronous: true
-
-            onScreenshotSourceChanged: usePlatformFallback = false
-            onStatusChanged: {
-                if (status === Image.Error && !usePlatformFallback && fallbackSource && source !== fallbackSource)
-                    usePlatformFallback = true
-            }
         }
 
 
@@ -723,15 +706,15 @@ id: root
 
     property int collectionIndex: currentCollectionIndex
     onCollectionIndexChanged: {
-        refreshHeroBackground()
+        pickRandomHeroScreenshot()
         resetHeroScroll()
     }
 
-    Component.onCompleted: refreshHeroBackground()
+    Component.onCompleted: pickRandomHeroScreenshot()
 
     onFocusChanged: {
         if (focus) {
-            refreshHeroBackground()
+            pickRandomHeroScreenshot()
             currentHelpbarModel = gridviewHelpModel;
             gamegrid.focus = true;
             if (isFirstGridRow(gamegrid.currentIndex))
