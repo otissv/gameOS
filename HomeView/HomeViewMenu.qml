@@ -33,20 +33,20 @@ id: root
 
     // Pull in our custom lists and define
     ListAllGames    { id: listNone;        max: 0; kidsOnly: root.kidsOnly }
-    ListAllGames    { id: listAllGames;    max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
-    ListFavorites   { id: listFavorites;   max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
-    ListLastPlayed  { id: listLastPlayed;  max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
-    ListMostPlayed  { id: listMostPlayed;  max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
-    ListRecommended { id: listRecommended; max: settings.ShowcaseColumns; kidsOnly: root.kidsOnly }
-    ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub; kidsOnly: root.kidsOnly }
-    ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre; kidsOnly: root.kidsOnly }
+    ListAllGames    { id: listAllGames;    max: settings.HomeColumns; kidsOnly: root.kidsOnly }
+    ListFavorites   { id: listFavorites;   max: settings.HomeColumns; kidsOnly: root.kidsOnly }
+    ListLastPlayed  { id: listLastPlayed;  max: settings.HomeColumns; kidsOnly: root.kidsOnly }
+    ListMostPlayed  { id: listMostPlayed;  max: settings.HomeColumns; kidsOnly: root.kidsOnly }
+    ListRecommended { id: listRecommended; max: settings.HomeColumns; kidsOnly: root.kidsOnly }
+    ListPublisher   { id: listPublisher;   max: settings.HomeColumns; publisher: randoPub; kidsOnly: root.kidsOnly }
+    ListGenre       { id: listGenre;       max: settings.HomeColumns; genre: randoGenre; kidsOnly: root.kidsOnly }
 
     property var randomFeaturedGames: []
-    property var collection1: getCollection(settings.ShowcaseCollection1, settings.ShowcaseCollection1_Thumbnail)
-    property var collection2: getCollection(settings.ShowcaseCollection2, settings.ShowcaseCollection2_Thumbnail)
-    property var collection3: getCollection(settings.ShowcaseCollection3, settings.ShowcaseCollection3_Thumbnail)
-    property var collection4: getCollection(settings.ShowcaseCollection4, settings.ShowcaseCollection4_Thumbnail)
-    property var collection5: getCollection(settings.ShowcaseCollection5, settings.ShowcaseCollection5_Thumbnail)
+    property var collection1: getCollection(settings.HomeCollection1, settings.HomeCollection1_Thumbnail)
+    property var collection2: getCollection(settings.HomeCollection2, settings.HomeCollection2_Thumbnail)
+    property var collection3: getCollection(settings.HomeCollection3, settings.HomeCollection3_Thumbnail)
+    property var collection4: getCollection(settings.HomeCollection4, settings.HomeCollection4_Thumbnail)
+    property var collection5: getCollection(settings.HomeCollection5, settings.HomeCollection5_Thumbnail)
 
     function getCollection(collectionName, collectionThumbnail) {
         var collection = {
@@ -705,23 +705,25 @@ id: root
         }
     }
 
-    // Helpbar buttons
-    ListModel {
-        id: gridviewHelpModel
 
-        ListElement {
-            name: "Settings"
-            button: "filters"
-        }
-        ListElement {
-            name: "Select"
-            button: "accept"
+    HelpBar {
+    id: homeviewHelpModel
+
+        helpModel: ListModel {
+            ListElement {
+                name: "Settings"
+                button: "filters"
+            }
+            ListElement {
+                name: "Select"
+                button: "accept"
+            }
         }
     }
 
-    onFocusChanged: { 
+    onFocusChanged: {
         if (focus)
-            currentHelpbarModel = gridviewHelpModel;
+            currentHelpbarModel = homeviewHelpModel.helpModel;
     }
 
 }

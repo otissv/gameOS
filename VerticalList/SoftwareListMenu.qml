@@ -34,6 +34,8 @@ id: root
     Image {
     id: screenshot
 
+       property string screenshotSource: currentGame && currentGame.assets.screenshots[0] ? currentGame.assets.screenshots[0] : ""
+
         anchors {
             top: parent.top
             left: softwarelist.right
@@ -41,22 +43,19 @@ id: root
             bottom: parent.bottom
         }
         asynchronous: true
-        source: currentGame && currentGame.assets.screenshots[0] ? currentGame.assets.screenshots[0] : ""
+        source: screenshotSource
         fillMode: Image.PreserveAspectCrop
         smooth: true
 
-        GameInfo {
-        id: info
-
-            anchors {
-                left: parent.left; leftMargin: globalMargin
-                right: parent.right; rightMargin: globalMargin
-                bottom: parent.bottom; bottomMargin: globalMargin + helpMargin
-            }
-            height: vpx(230)
+        Scanlines {
+            id: scanlines
+            anchors.fill: parent
+            visible: screenshotSource !== "" 
         }
+   
     }
 
+   
     HeaderBar {
     id: header
         
@@ -140,8 +139,8 @@ id: root
                     }
                     
                     color: theme.text
-                    font.family: fonts.subtitle.family.name
-                    font.pixelSize: fonts.subtitle.pixelSize
+                    font.family: fonts.body.family.name
+                    font.pixelSize: fonts.body.pixelSize
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
                     opacity: selected ? 1 : 0.2
@@ -160,6 +159,34 @@ id: root
                 }
             }
         }
+    }
+
+
+
+    Rectangle {
+    id: mainContent
+         anchors {
+            top: parent.top
+            left: softwarelist.right
+            right: parent.right
+            bottom: parent.bottom
+        }
+        color: "transparent"
+
+        GameInfo {
+        id: info
+        
+            showTitle: true
+            showDescription: true
+            showGenre: true
+            z: 1
+            anchors {
+                left: parent.left; leftMargin: globalMargin
+                right: parent.right; rightMargin: globalMargin
+                bottom: parent.bottom; bottomMargin: globalMargin + helpMargin
+            }
+            height: vpx(230)
+        } 
     }
 
     // Handle input

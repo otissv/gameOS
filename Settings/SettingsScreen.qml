@@ -16,6 +16,8 @@
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.11
+import "../Global"
+
 
 FocusScope {
 id: root
@@ -92,9 +94,9 @@ id: root
     }
 
     ListModel {
-    id: showcaseSettingsModel
+    id: homeSettingsModel
         ListElement {
-            settingName: "Number of games showcased"
+            settingName: "Number of games homed"
             setting: "15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,1,2,3,4,5,6,7,8,9,10,11,12,13,14"
         }
         ListElement {
@@ -140,10 +142,10 @@ id: root
         
     }
 
-    property var showcasePage: {
+    property var homePage: {
         return {
             pageName: "Home page",
-            listmodel: showcaseSettingsModel
+            listmodel: homeSettingsModel
         }
     }
 
@@ -207,7 +209,7 @@ id: root
         }
     }
 
-    property var settingsArr: [generalPage, showcasePage, gridPage, gamePage, advancedPage]
+    property var settingsArr: [generalPage, homePage, gridPage, gamePage, advancedPage]
 
     property real itemheight: vpx(50)
 
@@ -490,16 +492,20 @@ id: root
         Keys.onDownPressed: { sfxNav.play(); incrementCurrentIndex() }
     }
 
-    // Helpbar buttons
-    ListModel {
-        id: settingsHelpModel
+    HelpBar {
+        id: settingsHelp
 
-        ListElement {
-            name: "Back"
-            button: "cancel"
+        helpModel: ListModel {
+            ListElement {
+                name: "Back"
+                button: "cancel"
+            }
         }
     }
-    
-    onFocusChanged: { if (focus) currentHelpbarModel = settingsHelpModel; }
+
+    onFocusChanged: {
+        if (focus)
+            currentHelpbarModel = settingsHelp.helpModel;
+    }
 
 }

@@ -672,25 +672,26 @@ id: root
         }
     }
 
-    // Helpbar buttons
-    ListModel {
-        id: gridviewHelpModel
+    HelpBar {
+        id: gridviewHelp
 
-        ListElement {
-            name: "Back"
-            button: "cancel"
-        }
-        ListElement {
-            name: "Toggle favorite"
-            button: "details"
-        }
-        ListElement {
-            name: "Filters"
-            button: "filters"
-        }
-        ListElement {
-            name: "View details"
-            button: "accept"
+        helpModel: ListModel {
+            ListElement {
+                name: "Back"
+                button: "cancel"
+            }
+            ListElement {
+                name: "Toggle favorite"
+                button: "details"
+            }
+            ListElement {
+                name: "Filters"
+                button: "filters"
+            }
+            ListElement {
+                name: "View details"
+                button: "accept"
+            }
         }
     }
 
@@ -705,7 +706,7 @@ id: root
     onFocusChanged: {
         if (focus) {
             pickRandomHeroScreenshot()
-            currentHelpbarModel = gridviewHelpModel;
+            currentHelpbarModel = gridviewHelp.helpModel;
             gamegrid.focus = true;
             if (isFirstGridRow(gamegrid.currentIndex))
                 resetHeroScroll();

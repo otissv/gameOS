@@ -702,12 +702,14 @@ id: root
     }
 
     Keys.onReleased: {
+        // Page down
         if (api.keys.isPageDown(event) && !event.isAutoRepeat) {
             event.accepted = true;
             endTriggerLetterScroll(+1);
             return;
         }
 
+        // Page up
         if (api.keys.isPageUp(event) && !event.isAutoRepeat) {
             event.accepted = true;
             endTriggerLetterScroll(-1);
@@ -716,18 +718,21 @@ id: root
     }
 
     Keys.onPressed: {
+        // Page down
         if (api.keys.isPageDown(event) && !event.isAutoRepeat) {
             event.accepted = true;
             beginTriggerLetterScroll(+1);
             return;
         }
 
+        // Page up
         if (api.keys.isPageUp(event) && !event.isAutoRepeat) {
             event.accepted = true;
             beginTriggerLetterScroll(-1);
             return;
         }
 
+        // Accept
         if (api.keys.isAccept(event) && !event.isAutoRepeat) {
             event.accepted = true;
             if (gamegrid.activeFocus) {
@@ -741,6 +746,7 @@ id: root
             return;
         }
 
+        // Back
         if (api.keys.isCancel(event) && !event.isAutoRepeat) {
             event.accepted = true;
             if (gamegrid.activeFocus) {
@@ -753,19 +759,23 @@ id: root
             }
             return;
         }
+
+        
     }
 
-    ListModel {
-        id: categoryHelpModel
+    HelpBar {
+        id: categoryHelp
 
-        ListElement { name: "Back"; button: "cancel" }
-        ListElement { name: "Toggle favorite"; button: "details" }
-        ListElement { name: "View details"; button: "accept" }
+        helpModel: ListModel {
+            ListElement { name: "Back"; button: "cancel" }
+            ListElement { name: "Toggle favorite"; button: "details" }
+            ListElement { name: "View details"; button: "accept" }
+        }
     }
 
     onFocusChanged: {
         if (focus) {
-            currentHelpbarModel = categoryHelpModel;
+            currentHelpbarModel = categoryHelp.helpModel;
             if (!categoryList.focus && !gamegrid.focus)
                 categoryList.focus = true;
         } else if (navigationRestored) {

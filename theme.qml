@@ -37,7 +37,7 @@ id: root
         return {
      
             // General settings
-            // PlatformView:                  api.memory.has("Game View") ? api.memory.get("Game View") : "Grid",
+            PlatformView:                  api.memory.has("Game View") ? api.memory.get("Game View") : "Grid",
             AllowThumbVideo:               api.memory.has("Allow video thumbnails") ? api.memory.get("Allow video thumbnails") : "Yes",
             AllowThumbVideoAudio:          api.memory.has("Play video thumbnail audio") ? api.memory.get("Play video thumbnail audio") : "No",
             HideLogo:                      api.memory.has("Hide logo when thumbnail video plays") ? api.memory.get("Hide logo when thumbnail video plays") : "No",
@@ -68,17 +68,17 @@ id: root
             GameBlurBackground:            api.memory.has("Blur Background") ? api.memory.get("Blur Background") : "No",
 
             // Home page settings
-            ShowcaseColumns:               api.memory.has("Number of games showcased") ? api.memory.get("Number of games showcased") : "15",
-            ShowcaseCollection1:           api.memory.has("Collection 1") ? api.memory.get("Collection 1") : "Recently Played",
-            ShowcaseCollection1_Thumbnail: api.memory.has("Collection 1 - Thumbnail") ? api.memory.get("Collection 1 - Thumbnail") : "Wide",
-            ShowcaseCollection2:           api.memory.has("Collection 2") ? api.memory.get("Collection 2") : "Recommended",
-            ShowcaseCollection2_Thumbnail: api.memory.has("Collection 2 - Thumbnail") ? api.memory.get("Collection 2 - Thumbnail") : "Tall",
-            ShowcaseCollection3:           api.memory.has("Collection 3") ? api.memory.get("Collection 3") : "Top by Publisher",
-            ShowcaseCollection3_Thumbnail: api.memory.has("Collection 3 - Thumbnail") ? api.memory.get("Collection 3 - Thumbnail") : "Wide",
-            ShowcaseCollection4:           api.memory.has("Collection 4") ? api.memory.get("Collection 4") : "Most Played",
-            ShowcaseCollection4_Thumbnail: api.memory.has("Collection 4 - Thumbnail") ? api.memory.get("Collection 4 - Thumbnail") : "Tall",
-            ShowcaseCollection5:           api.memory.has("Collection 5") ? api.memory.get("Collection 5") : "Top by Publisher",
-            ShowcaseCollection5_Thumbnail: api.memory.has("Collection 5 - Thumbnail") ? api.memory.get("Collection 5 - Thumbnail") : "Wide",
+            HomeColumns:               api.memory.has("Number of games showcased") ? api.memory.get("Number of games showcased") : "15",
+            HomeCollection1:           api.memory.has("Collection 1") ? api.memory.get("Collection 1") : "Recently Played",
+            HomeCollection1_Thumbnail: api.memory.has("Collection 1 - Thumbnail") ? api.memory.get("Collection 1 - Thumbnail") : "Wide",
+            HomeCollection2:           api.memory.has("Collection 2") ? api.memory.get("Collection 2") : "Recommended",
+            HomeCollection2_Thumbnail: api.memory.has("Collection 2 - Thumbnail") ? api.memory.get("Collection 2 - Thumbnail") : "Tall",
+            HomeCollection3:           api.memory.has("Collection 3") ? api.memory.get("Collection 3") : "Top by Publisher",
+            HomeCollection3_Thumbnail: api.memory.has("Collection 3 - Thumbnail") ? api.memory.get("Collection 3 - Thumbnail") : "Wide",
+            HomeCollection4:           api.memory.has("Collection 4") ? api.memory.get("Collection 4") : "Most Played",
+            HomeCollection4_Thumbnail: api.memory.has("Collection 4 - Thumbnail") ? api.memory.get("Collection 4 - Thumbnail") : "Tall",
+            HomeCollection5:           api.memory.has("Collection 5") ? api.memory.get("Collection 5") : "Top by Publisher",
+            HomeCollection5_Thumbnail: api.memory.has("Collection 5 - Thumbnail") ? api.memory.get("Collection 5 - Thumbnail") : "Wide",
         }
     }
 
@@ -584,7 +584,7 @@ id: root
     }
 
     Loader  {
-    id: kidsShowcaseLoader
+    id: kidsHomeLoader
 
         focus: (root.state === "kidsshowcasescreen")
         active: opacity !== 0
