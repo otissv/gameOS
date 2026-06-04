@@ -14,7 +14,12 @@ import "../utils.js" as Utils
 FocusScope {
 id: root
 
-    property string metadataKey: ""
+    property var metadataTypes: [
+        { label: "GenreList", metadataKey: "genreList", listType: "genre" },
+        { label: "DeveloperList", metadataKey: "developerList", listType: "developer" }
+    ]
+    property int metadataTypeIndex: 0
+    property string metadataKey: "genreList"
     property string listType: "genre"
 
     function currentList() {
@@ -25,6 +30,40 @@ id: root
         gameDetails(currentList().currentGame(gamegrid.currentIndex));
     }
 
+    function metadataTypeIndexFor(metadataKeyValue, listTypeValue) {
+        for (var i = 0; i < metadataTypes.length; i++) {
+            if (metadataTypes[i].metadataKey === metadataKeyValue || metadataTypes[i].listType === listTypeValue) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    function currentMetadataType() {
+        return metadataTypes[metadataTypeIndex] || metadataTypes[0];
+    }
+
+    function applyMetadataType(index) {
+        if (metadataTypes.length === 0) {
+            return;
+        }
+
+        metadataTypeIndex = (index + metadataTypes.length) % metadataTypes.length;
+        metadataKey = currentMetadataType().metadataKey;
+        listType = currentMetadataType().listType;
+        storedCategoryIndex = 0;
+        storedCategoryGameIndex = 0;
+        categoryList.currentIndex = 0;
+        gamegrid.currentIndex = 0;
+        sortedGames = null;
+    }
+
+    function cycleMetadataType() {
+        sfxToggle.play();
+        applyMetadataType(metadataTypeIndex + 1);
+    }
+
     property var sortedGames;
     property var sortOrderWatcher: orderBy
     property var sortFieldWatcher: sortByIndex
@@ -32,6 +71,8 @@ id: root
     onSortFieldWatcherChanged: sortedGames = null
     property bool isLeftTriggerPressed: false;
     property bool isRightTriggerPressed: false;
+
+    Component.onCompleted: applyMetadataType(metadataTypeIndexFor(metadataKey, listType));
 
     Timer {
         id: letterScrollRepeatTimer
@@ -271,8 +312,68 @@ id: root
         id: headercontainer
 
             anchors.fill: parent
-            titleText: categoryNames[categoryList.currentIndex]
+            titleText: " "
         }
+
+        Item {
+        id: metadataTypeButton
+
+            property bool mouseHovered: false
+            property bool highlighted: activeFocus || mouseHovered
+
+            width: metadataTypeTitle.contentWidth + vpx(30)
+            height: vpx(40)
+            anchors {
+                left: parent.left; leftMargin: globalMargin
+                verticalCenter: parent.verticalCenter
+            }
+            z: 1
+
+            Rectangle {
+                anchors.fill: parent
+                radius: height / 2
+                color: metadataTypeButton.highlighted ? theme.accent : theme.text
+                opacity: metadataTypeButton.highlighted ? 1 : 0.2
+            }
+
+            Text {
+            id: metadataTypeTitle
+
+                text: currentMetadataType().label
+                color: theme.text
+                font.family: subtitleFont.name
+                font.pixelSize: vpx(18)
+                anchors.centerIn: parent
+                elide: Text.ElideRight
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: metadataTypeButton.mouseHovered = true
+                onExited: metadataTypeButton.mouseHovered = false
+                onClicked: cycleMetadataType();
+            }
+
+            Keys.onPressed: {
+                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                    event.accepted = true;
+                    cycleMetadataType();
+                    return;
+                }
+            }
+
+            Keys.onDownPressed: {
+                sfxNav.play();
+                categoryList.focus = true;
+            }
+
+            Keys.onRightPressed: {
+                sfxNav.play();
+                headercontainer.focus = true;
+            }
+        }
+
         Keys.onDownPressed: {
             sfxNav.play();
             categoryList.focus = true;
@@ -362,7 +463,7 @@ id: root
             Keys.onUpPressed: {
                 sfxNav.play();
                 if (currentIndex === 0)
-                    headercontainer.focus = true;
+                    metadataTypeButton.forceActiveFocus();
                 else
                     decrementCurrentIndex();
             }

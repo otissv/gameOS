@@ -167,8 +167,20 @@ id: root
 
     function storeIndices(secondary) {
         storedHomePrimaryIndex = mainList.currentIndex;
-        if (secondary)
+        if (secondary !== undefined && secondary !== null)
             storedHomeSecondaryIndex = secondary;
+    }
+
+    function storeCurrentListPosition() {
+        if (mainList.currentIndex === 0) {
+            storeIndices(featuredlist.currentIndex);
+        } else if (mainList.currentIndex === platformlist.ObjectModel.index) {
+            storeIndices(platformlist.currentIndex >= 0 ? platformlist.currentIndex : platformlist.savedIndex);
+        } else if (mainList.currentItem && mainList.currentItem.currentIndex !== undefined) {
+            storeIndices(mainList.currentItem.currentIndex);
+        } else {
+            storeIndices();
+        }
     }
 
     function restoreMainListPosition() {
@@ -182,318 +194,22 @@ id: root
         mainList.positionViewAtIndex(storedHomePrimaryIndex, ListView.Visible);
     }
 
-    Component.onDestruction: storeIndices();
+    Component.onDestruction: storeCurrentListPosition();
     
     anchors.fill: parent
 
    
-    Item {
+    HomeHeader {
     id: header
 
         width: parent.width
-        height: vpx(70)
-        z: 10
-        Image {
-        id: logo
+        kidsOnly: root.kidsOnly
+        ftueVisible: ftueContainer.visible
 
-            width: vpx(150)
-            anchors { left: parent.left; leftMargin: globalMargin }
-            source: "../assets/images/gameOS-logo.png"
-            sourceSize: Qt.size(parent.width, parent.height)
-            fillMode: Image.PreserveAspectFit
-            smooth: true
-            asynchronous: true
-            anchors.verticalCenter: parent.verticalCenter
-            visible: !ftueContainer.visible
-        }
-
-        Rectangle {
-        id: kidsbutton
-
-            visible: !kidsOnly
-            width: vpx(80)
-            height: vpx(40)
-            anchors {
-                left: parent.left
-                leftMargin: globalMargin
-                rightMargin: vpx(10)
-            }
-            color: focus ? theme.accent : "transparent"
-            radius: height / 2
-            anchors.verticalCenter: parent.verticalCenter
-            onFocusChanged: {
-                sfxNav.play()
-                if (focus)
-                    mainList.currentIndex = -1
-                else
-                    mainList.currentIndex = 0
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: "Maxx"
-                color: focus ? theme.accent : theme.text
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(14)
-                font.bold: true
-            }
-
-            Keys.onDownPressed: mainList.forceActiveFocus()
-            Keys.onRightPressed: {
-                sfxNav.play()
-                genrebutton.forceActiveFocus()
-            }
-            Keys.onPressed: {
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    kidsScreen()
-                }
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    mainList.forceActiveFocus()
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: kidsbutton.forceActiveFocus()
-                onExited: kidsbutton.focus = false
-                onClicked: kidsScreen()
-            }
-        }
-
-        Rectangle {
-        id: homebutton
-
-            visible: kidsOnly
-            width: vpx(80)
-            height: vpx(40)
-            anchors {
-                left: parent.left
-                leftMargin: globalMargin
-                rightMargin: vpx(10)
-            }
-            color: focus ? theme.accent : "transparent"
-            radius: height / 2
-            anchors.verticalCenter: parent.verticalCenter
-            onFocusChanged: {
-                sfxNav.play()
-                if (focus)
-                    mainList.currentIndex = -1
-                else
-                    mainList.currentIndex = 0
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: "Maxx Kids"
-                color: focus ? theme.accent : theme.text
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(14)
-                font.bold: true
-            }
-
-            Keys.onDownPressed: mainList.forceActiveFocus()
-            Keys.onRightPressed: {
-                sfxNav.play()
-                genrebutton.forceActiveFocus()
-            }
-            Keys.onPressed: {
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    previousScreen()
-                }
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    mainList.forceActiveFocus()
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: homebutton.forceActiveFocus()
-                onExited: homebutton.focus = false
-                onClicked: previousScreen()
-            }
-        }
-
-        Rectangle {
-        id: genrebutton
-
-            width: vpx(80)
-            height: vpx(40)
-            anchors {
-                right: developerbutton.left
-                rightMargin: vpx(10)
-            }
-            color: focus ? theme.accent : "transparent"
-            radius: height / 2
-            anchors.verticalCenter: parent.verticalCenter
-            onFocusChanged: {
-                sfxNav.play()
-                if (focus)
-                    mainList.currentIndex = -1
-                else
-                    mainList.currentIndex = 0
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: "Games"
-                 color: focus ? theme.accent : theme.text
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(14)
-                font.bold: true
-            }
-
-            Keys.onDownPressed: mainList.forceActiveFocus()
-            Keys.onLeftPressed: {
-                sfxNav.play()
-                if (kidsOnly)
-                    homebutton.forceActiveFocus()
-                else
-                    kidsbutton.forceActiveFocus()
-            }
-            Keys.onRightPressed: {
-                sfxNav.play()
-                developerbutton.forceActiveFocus()
-            }
-            Keys.onPressed: {
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    genreScreen()
-                }
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    mainList.forceActiveFocus()
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: genrebutton.forceActiveFocus()
-                onExited: genrebutton.focus = false
-                onClicked: genreScreen()
-            }
-        }
-
-        Rectangle {
-        id: developerbutton
-
-            width: vpx(100)
-            height: vpx(40)
-            anchors {
-                right: settingsbutton.left
-                rightMargin: vpx(10)
-            }
-            color: focus ? theme.accent : "transparent"
-            radius: height / 2
-            anchors.verticalCenter: parent.verticalCenter
-            onFocusChanged: {
-                sfxNav.play()
-                if (focus)
-                    mainList.currentIndex = -1
-                else
-                    mainList.currentIndex = 0
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: "Developer"
-                color: focus ? theme.accent : theme.text
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(14)
-                font.bold: true
-            }
-
-            Keys.onDownPressed: mainList.forceActiveFocus()
-            Keys.onLeftPressed: {
-                sfxNav.play()
-                genrebutton.forceActiveFocus()
-            }
-            Keys.onRightPressed: {
-                sfxNav.play()
-                settingsbutton.forceActiveFocus()
-            }
-            Keys.onPressed: {
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    developerScreen()
-                }
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    mainList.forceActiveFocus()
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: developerbutton.forceActiveFocus()
-                onExited: developerbutton.focus = false
-                onClicked: developerScreen()
-            }
-        }
-
-        Rectangle {
-        id: settingsbutton
-
-            width: height
-            height: vpx(40)
-            anchors { right: parent.right; rightMargin: globalMargin }
-            color: focus ? theme.accent : theme.text
-            radius: height/2
-            opacity: focus ? 1 : 0.2
-            anchors.verticalCenter: parent.verticalCenter
-            onFocusChanged: {
-                sfxNav.play()
-                if (focus)
-                    mainList.currentIndex = -1;
-                else
-                    mainList.currentIndex = 0;
-            }
-
-            Keys.onDownPressed: mainList.forceActiveFocus();
-            Keys.onLeftPressed: {
-                sfxNav.play();
-                developerbutton.forceActiveFocus();
-            }
-            Keys.onPressed: {
-                // Accept
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true;
-                    settingsScreen();            
-                }
-                // Back
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true;
-                    mainList.forceActiveFocus();
-                }
-            }
-            // Mouse/touch functionality
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: settingsbutton.forceActiveFocus();
-                onExited: settingsbutton.focus = false;
-                onClicked: settingsScreen();
-            }
-        }
-
-        Image {
-        id: settingsicon
-
-            width: height
-            height: vpx(24)
-            anchors.centerIn: settingsbutton
-            smooth: true
-            asynchronous: true
-            source: "../assets/images/settingsicon.svg"
-            opacity: root.focus ? 0.8 : 0.5
-        }
+        onKidsRequested: kidsScreen()
+        onHomeRequested: previousScreen()
+        onMainListFocusRequested: mainList.forceActiveFocus()
+        onMainListIndexRequested: mainList.currentIndex = index
     }
 
     // Using an object model to build the list
@@ -635,7 +351,7 @@ id: root
 
             Keys.onUpPressed: {
                 sfxNav.play();
-                genrebutton.forceActiveFocus();
+                header.focusNavigationButton();
             }
             Keys.onLeftPressed: { sfxNav.play(); decrementCurrentIndex() }
             Keys.onRightPressed: { sfxNav.play(); incrementCurrentIndex() }
@@ -682,7 +398,7 @@ id: root
             highlightMoveDuration: 100
             keyNavigationWraps: true
             
-            property int savedIndex: collectionToPlatformListIndex(currentCollectionIndex)
+            property int savedIndex: (storedHomePrimaryIndex === myIndex) ? storedHomeSecondaryIndex : collectionToPlatformListIndex(currentCollectionIndex)
             onFocusChanged: {
                 if (focus) {
                     currentIndex = savedIndex;
@@ -950,7 +666,7 @@ id: root
 
         anchors.fill: parent
         model: mainModel
-        focus: !genrebutton.activeFocus && !settingsbutton.activeFocus && !kidsbutton.activeFocus && !homebutton.activeFocus
+        focus: !header.anyButtonActiveFocus
         highlightMoveDuration: 200
         highlightRangeMode: currentIndex === 0 ? ListView.NoHighlightRange : ListView.ApplyRange
         preferredHighlightBegin: currentIndex === 0 ? 0 : header.height
