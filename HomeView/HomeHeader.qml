@@ -49,7 +49,7 @@ id: root
                 rightMargin: globalMargin
 
             }
-            width: vpx(80)
+            width: root.kidsOnly ? vpx(144) : vpx(80)
             height: vpx(40)
             color: "transparent"
        

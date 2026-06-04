@@ -66,6 +66,11 @@ id: root
             right:  parent.right
         }
         height: vpx(75)
+
+        Keys.onDownPressed: {
+            sfxNav.play();
+            softwarelist.focus = true;
+        }
     }
     
     // Software list
@@ -160,10 +165,15 @@ id: root
     // Handle input
     // Up
     Keys.onUpPressed: {
-        if (softwarelist.currentIndex != 0)
+        if (header.focus) {
+            return;
+        }
+        if (softwarelist.currentIndex != 0) {
             softwarelist.currentIndex--;
-        else
-            softwarelist.currentIndex = softwarelist.count - 1
+        } else {
+            sfxNav.play();
+            header.focus = true;
+        }
     }
     // Down
     Keys.onDownPressed: {

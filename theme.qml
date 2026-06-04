@@ -182,15 +182,63 @@ id: root
     property int storedCollectionGameIndex: 0
 
     // Reset the stored game index when changing collections
-    onCurrentCollectionIndexChanged: storedCollectionGameIndex = 0
+    onCurrentCollectionIndexChanged: {
+        storedCollectionGameIndex = 0
+        if (state === "softwaregridscreen" || state === "softwarescreen")
+            activateFilterView("collection:" + currentCollectionIndex)
+    }
 
-    // Filtering options
+    // Filtering options (active values; persisted per view in viewFilterStates)
+    property var viewFilterStates: ({})
+    property string activeFilterViewKey: ""
     property bool showFavs: false
     property var sortByFilter: ["sortBy", "lastPlayed", "playCount", "rating"]
     property var sortByDisplay: ["title", "last played", "play count", "rating"]
     property int sortByIndex: 0
     property var orderBy: Qt.AscendingOrder
     property string searchTerm: ""
+
+    function defaultFilterState() {
+        return {
+            showFavs: false,
+            sortByIndex: 0,
+            orderBy: Qt.AscendingOrder,
+            searchTerm: ""
+        }
+    }
+
+    function saveActiveFilterState() {
+        if (activeFilterViewKey === "")
+            return
+        viewFilterStates[activeFilterViewKey] = {
+            showFavs: showFavs,
+            sortByIndex: sortByIndex,
+            orderBy: orderBy,
+            searchTerm: searchTerm
+        }
+    }
+
+    function loadFilterState(key) {
+        var saved = viewFilterStates[key]
+        var filterState = saved ? saved : defaultFilterState()
+        showFavs = filterState.showFavs
+        sortByIndex = filterState.sortByIndex
+        orderBy = filterState.orderBy
+        searchTerm = filterState.searchTerm
+    }
+
+    function activateFilterView(key) {
+        if (key === "" || key === activeFilterViewKey)
+            return
+        saveActiveFilterState()
+        activeFilterViewKey = key
+        loadFilterState(key)
+    }
+
+    function deactivateFilterView() {
+        saveActiveFilterState()
+        activeFilterViewKey = ""
+    }
     property bool steam: currentCollection.name === "Steam"
     function steamExists() {
         for (i = 0; i < api.collections.count; i++) {
@@ -347,11 +395,21 @@ id: root
     property var lastState: []
     property var lastGame: []
 
+    onStateChanged: {
+        if (state === "softwaregridscreen" || state === "softwarescreen")
+            activateFilterView("collection:" + currentCollectionIndex)
+        else if (state === "genrescreen")
+            activateFilterView("metadata:genreList")
+        else if (state === "developerscreen")
+            activateFilterView("metadata:developerList")
+        else if (activeFilterViewKey !== "")
+            deactivateFilterView()
+    }
+
     // Screen switching functions
     function softwareScreen() {
         sfxAccept.play();
         lastState.push(state);
-        searchTerm = "";
         switch(settings.PlatformView) {
             case "Grid":
                 root.state = "softwaregridscreen";

@@ -102,7 +102,7 @@ id: root
 
             anchors {
                 left: agetext.right
-                leftMargin: vpx(5)
+                leftMargin: root.dividerSpacing
                 right: parent.right
                 top: parent.top
                 bottom: parent.bottom

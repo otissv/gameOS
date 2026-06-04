@@ -313,7 +313,7 @@ id: root
             antialiasing: true
             renderType: Text.NativeRendering
             font.hintingPreference: Font.PreferNoHinting
-            font.family: fonts.title.family.name
+            font.family: titleFont.name
             font.capitalization: Font.AllUppercase
             font.pixelSize: vpx(200)
             color: theme.text
@@ -405,19 +405,22 @@ id: root
         }
     }
 
-    HeaderBar {
-    id: headerBar
+   
 
-        z: 5
-        anchors.fill: parent
 
-        Keys.onDownPressed: {
+        HeaderBar {
+        id: headerBar
+
+            z: 5
+            anchors.fill: parent
+
+             Keys.onDownPressed: {
             sfxNav.play();
             gamegrid.focus = true;
             gamegrid.currentIndex = 0;
             resetHeroScroll();
         }
-    }
+        }
 
 
     NumberAnimation {

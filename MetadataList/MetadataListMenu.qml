@@ -52,6 +52,7 @@ id: root
         metadataTypeIndex = (index + metadataTypes.length) % metadataTypes.length;
         metadataKey = currentMetadataType().metadataKey;
         listType = currentMetadataType().listType;
+        activateFilterView("metadata:" + metadataKey);
         storedCategoryIndex = 0;
         storedCategoryGameIndex = 0;
         categoryList.currentIndex = 0;
