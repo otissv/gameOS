@@ -36,6 +36,9 @@ id: root
     property bool canPlayVideo: settings.VideoPreview === "Yes"
     property real detailsOpacity: (settings.DetailsDefault === "Yes") ? 1 : 0
     property bool blurBG: settings.GameBlurBackground === "Yes"
+    property bool showMenuBackground: content.currentIndex !== 0
+                                    || content.moving
+                                    || content.flicking
     property string publisherName: {
         if (game !== null && game.publisher !== null) {
             var str = game.publisher;
@@ -70,7 +73,7 @@ id: root
         media.savedIndex = 0;
         list1.savedIndex = 0;
         list2.savedIndex = 0;
-        screenshot.opacity = 1;
+        screenshot.mediaBgOpacity = 1;
         mediaScreen.opacity = 0;
         toggleVideo(true);
     }
@@ -118,7 +121,7 @@ id: root
       if (!toggle)
       {
         // Turn off video
-        screenshot.opacity = 1;
+        screenshot.mediaBgOpacity = 1;
         stopvideo.restart();
       } else {
         stopvideo.stop();
@@ -147,9 +150,7 @@ id: root
 
         interval: 1000
         onTriggered: {
-            screenshot.opacity = 0;
-            if (blurBG)
-                bgBlur.opacity = 0;
+            screenshot.mediaBgOpacity = 0;
         }
     }
 
@@ -189,13 +190,18 @@ id: root
 
         asynchronous: true
         anchors { fill: parent }
+        opacity: showMenuBackground ? 0 : 1
+        Behavior on opacity { NumberAnimation { duration: 200 } }
     }
+
 
     // // Background
     Image {
     id: screenshot
 
         anchors.fill: parent
+        property real mediaBgOpacity: 1
+        opacity: showMenuBackground ? 0 : mediaBgOpacity
         asynchronous: true
         property int randoScreenshotNumber: {
             if (game && settings.GameRandomBackground === "Yes")
@@ -241,39 +247,12 @@ id: root
 
     Scanlines {}
 
-    // Clear logo
-    Image {
-    id: gamelogo
+    
+    Rectangle {
 
-        anchors { 
-            top: parent.top; //topMargin: vpx(70)
-            left: parent.left; leftMargin: vpx(70)
-        }
-        width: vpx(500)
-        height: vpx(450) + header.height
-        source: root.game ? Utils.logo(game) : ""
-        fillMode: Image.PreserveAspectFit
-        asynchronous: true
-        opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
-        Behavior on opacity { NumberAnimation { duration: 200 } }
-        z: (content.currentIndex == 0) ? 10 : -10
-        visible: settings.GameLogo === "Show"
-    }
-
-    GameMetaRow {
-    id: logoMeta
-
-        gameData: game
-        showGenre: true
-        showTitle: true
-        anchors {
-            left: gamelogo.left
-            right: parent.right; rightMargin: vpx(70)
-            bottom: gamelogo.bottom; bottomMargin: vpx(20)
-        }
-        opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
-        visible: opacity !== 0
-        z: 10
+        anchors.fill: parent
+        color: theme.main
+        visible: showMenuBackground
     }
 
     DropShadow {
@@ -291,11 +270,61 @@ id: root
         visible: settings.GameLogo === "Show"
     }
 
+    // Game logo
+    Image {
+    id: gamelogo
+
+        anchors { 
+            top: parent.top; //topMargin: vpx(70)
+            left: parent.left; leftMargin: vpx(70)
+        }
+        width: vpx(500)
+        height: vpx(450) + header.height
+        source: root.game ? Utils.logo(game) : ""
+        fillMode: Image.PreserveAspectFit
+        asynchronous: true
+        opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        visible: settings.GameLogo === "Show"
+    }
+
+
+
+    Rectangle {
+    id: gameMetaRowBackground
+    
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height:vpx(500)
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "transparent"}
+            GradientStop { position: 1.0; color: '#000000'}
+        }
+    }
+
+    GameMetaRow {
+    id: gameMetaRow
+
+        gameData: game
+        showGenre: true
+        showTitle: true
+        anchors {
+            left: gamelogo.left
+            right: parent.right; rightMargin: vpx(70)
+            bottom: gamelogo.bottom; bottomMargin: vpx(20)
+        }
+        opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
+        visible: opacity !== 0
+    }
+
+
+
+ 
+
     // Platform title
     Text {
     id: gametitle
-        
-        text: game.title
         
         anchors {
             top:    gamelogo.top;
@@ -304,6 +333,7 @@ id: root
             bottom: gamelogo.bottom
         }
         
+        text: game.title
         color: theme.text
         font.family: fonts.title.family.name
         font.pixelSize: fonts.title.pixelSize
@@ -315,36 +345,7 @@ id: root
         lineHeight: 0.8
         visible: gamelogo.source === "" || settings.GameLogo === "Text only"
         opacity: (content.currentIndex !== 0 || detailsScreen.opacity !== 0) ? 0 : 1
-    }
-
-    // Gradient
-    LinearGradient {
-    id: bggradient
-
-        width: parent.width
-        height: parent.height/2
-        start: Qt.point(0, 0)
-        end: Qt.point(0, height)
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: theme.gradientstart }
-            GradientStop { position: 0.7; color: theme.gradientend }
-        }
-        y: (content.currentIndex == 0) ? height : -height
-        Behavior on y { NumberAnimation { duration: 200 } }
-    }
-
-    Rectangle {
-    id: overlay
-
-        color: theme.gradientend
-        anchors {
-            left: parent.left; right: parent.right
-            top: bggradient.bottom; bottom: parent.bottom
-        }
-        visible: content.currentIndex == 0
-    }
-
-    
+    } 
 
     // Details screen
     Item {
@@ -397,6 +398,7 @@ id: root
     Item {
     id: header
 
+        z: 4
         anchors {
             left: parent.left; 
             right: parent.right
@@ -534,8 +536,9 @@ id: root
     id: menuBackground
 
         anchors.fill: parent
+        z: 2
         color: theme.main
-        visible: content.currentIndex !== 0
+        visible: showMenuBackground
     }
 
     // Full list
@@ -553,9 +556,25 @@ id: root
             model: menuModel
             orientation: ListView.Horizontal
             spacing: vpx(10)
-            keyNavigationWraps: true
+            keyNavigationWraps: false
             Keys.onLeftPressed: { sfxNav.play(); decrementCurrentIndex() }
             Keys.onRightPressed: { sfxNav.play(); incrementCurrentIndex() }
+
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                propagateComposedEvents: true
+                onWheel: {
+                    if (wheel.angleDelta.y < 0) {
+                        sfxNav.play();
+                        content.incrementCurrentIndex();
+                    } else if (wheel.angleDelta.y > 0 && content.currentIndex > 0) {
+                        sfxNav.play();
+                        content.decrementCurrentIndex();
+                    }
+                    wheel.accepted = true;
+                }
+            }
         }
 
         HorizontalCollection {
@@ -630,6 +649,7 @@ id: root
     ListView {
     id: content
 
+        z: 3
         anchors {
             left: parent.left; leftMargin: vpx(70)
             right: parent.right
@@ -652,7 +672,7 @@ id: root
                 toggleVideo(false);
             }
         }
-        keyNavigationWraps: true
+        keyNavigationWraps: false
         Keys.onUpPressed: { sfxNav.play(); decrementCurrentIndex() }
         Keys.onDownPressed: { sfxNav.play(); incrementCurrentIndex() }
     }
@@ -711,7 +731,7 @@ id: root
             menu.focus = true;
             menu.currentIndex = 0; 
         } else {
-            screenshot.opacity = 1;
+            screenshot.mediaBgOpacity = 1;
             toggleVideo(false);
         }
     }

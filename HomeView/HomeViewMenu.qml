@@ -183,11 +183,31 @@ id: root
         }
     }
 
+    function snapToFeaturedSection(immediate) {
+        // Featured is row 0; header focus uses currentIndex -1 but still shows that row
+        if (mainList.currentIndex !== 0 && mainList.currentIndex !== -1)
+            return;
+
+        if (immediate) {
+            featuredSnapAnim.stop();
+            mainList.positionViewAtIndex(0, ListView.Begin);
+            return;
+        }
+
+        if (Math.abs(mainList.contentY) < 1)
+            return;
+
+        featuredSnapAnim.stop();
+        featuredSnapAnim.from = mainList.contentY;
+        featuredSnapAnim.to = 0;
+        featuredSnapAnim.start();
+    }
+
     function restoreMainListPosition() {
         mainList.currentIndex = storedHomePrimaryIndex;
 
         if (storedHomePrimaryIndex === 0) {
-            mainList.contentY = 0;
+            snapToFeaturedSection(true);
             return;
         }
 
@@ -208,8 +228,17 @@ id: root
 
         onKidsRequested: kidsScreen()
         onHomeRequested: previousScreen()
-        onMainListFocusRequested: mainList.forceActiveFocus()
-        onMainListIndexRequested: mainList.currentIndex = index
+        onMainListFocusRequested: {
+            mainList.forceActiveFocus();
+            if (mainList.currentIndex === 0)
+                snapToFeaturedSection();
+        }
+        onFeaturedSnapRequested: snapToFeaturedSection(true)
+        onMainListIndexRequested: {
+            mainList.currentIndex = index;
+            if (index === 0 || index === -1)
+                snapToFeaturedSection(true);
+        }
     }
 
     // Using an object model to build the list
@@ -220,6 +249,16 @@ id: root
         id: featuredlist
 
             property bool selected: ListView.isCurrentItem
+
+            onSelectedChanged: {
+                if (selected)
+                    featuredSnapTimer.restart();
+            }
+
+            onFocusChanged: {
+                if (focus && selected)
+                    featuredSnapTimer.restart();
+            }
             
             focus: selected
             width: root.width
@@ -229,7 +268,6 @@ id: root
             preferredHighlightBegin: vpx(0)
             preferredHighlightEnd: parent.width
             highlightRangeMode: ListView.StrictlyEnforceRange
-            //highlightMoveDuration: 200
             highlightMoveVelocity: -1
             snapMode: ListView.SnapOneItem
             keyNavigationWraps: true
@@ -258,25 +296,19 @@ id: root
 
                     Scanlines {}
 
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "black"
-                        opacity: featuredlist.focus ? 0 : 0.5
-                        Behavior on opacity { PropertyAnimation { duration: 150; easing.type: Easing.OutQuart; easing.amplitude: 2.0; easing.period: 1.5 } }
-                    }
-
                     LinearGradient {
                         anchors {
-                            left: parent.left
-                            right: parent.right
-                            bottom: parent.bottom
+                            left: background.left
+                            right: background.right
+                            bottom: background.bottom
+                            // top: background.top
                         }
-                        height: vpx(180)
+                        height: vpx(70)
                         start: Qt.point(0, 0)
                         end: Qt.point(0, height)
                         gradient: Gradient {
-                            GradientStop { position: 0.0; color: "transparent" }
-                            GradientStop { position: 1.0; color: "#CC000000" }
+                            GradientStop { position: 0.0; color: theme.gradientend }
+                            GradientStop { position: 1.0; color: theme.gradientmainstart }
                         }
                     }
 
@@ -661,6 +693,23 @@ id: root
         
     }
 
+    NumberAnimation {
+        id: featuredSnapAnim
+
+        target: mainList
+        property: "contentY"
+        duration: 200
+        easing.type: Easing.OutCubic
+    }
+
+    Timer {
+        id: featuredSnapTimer
+
+        interval: 0
+        repeat: false
+        onTriggered: snapToFeaturedSection()
+    }
+
     ListView {
     id: mainList
 
@@ -676,7 +725,9 @@ id: root
         currentIndex: storedHomePrimaryIndex
         onCurrentIndexChanged: {
             if (currentIndex === 0)
-                contentY = 0;
+                featuredSnapTimer.restart();
+            else
+                featuredSnapAnim.stop();
         }
         
         cacheBuffer: 1000

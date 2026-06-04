@@ -27,6 +27,7 @@ id: root
     signal homeRequested
     signal mainListFocusRequested
     signal mainListIndexRequested(int index)
+    signal featuredSnapRequested
 
     function focusNavigationButton() {
         if (kidsOnly)
@@ -40,107 +41,122 @@ id: root
     z: 10
 
     Rectangle {
-        id: navigationButtonContainer
-
-            anchors {
-                top: parent.top
-                topMargin: vpx(10)
-                right: parent.right
-                rightMargin: globalMargin
-
-            }
-            width: root.kidsOnly ? vpx(144) : vpx(80)
-            height: vpx(40)
-            color: "transparent"
-       
-       Rectangle {
-        id: kidsbutton
-
-            visible: !root.kidsOnly
-            width: vpx(80)
-            height: vpx(40)
-            anchors.fill: parent
-            color: focus ? theme.accent : "transparent"
-            radius: height / 2
-            anchors.verticalCenter: parent.verticalCenter
-            onFocusChanged: {
-                sfxNav.play()
-                root.mainListIndexRequested(focus ? -1 : 0)
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: "Maxx"
-                color: focus ? theme.accent : theme.text
-                font.family: fonts.subtitle.family.name
-                font.pixelSize: fonts.subtitle.pixelSize
-                font.bold: fonts.subtitle.bold
-            }
-
-            Keys.onDownPressed: root.mainListFocusRequested()
-            Keys.onPressed: {
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    root.kidsRequested()
-                }
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    root.mainListFocusRequested()
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: kidsbutton.forceActiveFocus()
-                onExited: kidsbutton.focus = false
-                onClicked: root.kidsRequested()
-            }
+        anchors.fill: parent
+        color: "red"
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: theme.headerGradientSolid }
+            GradientStop { position: 1.0; color: theme.headerGradientTransparent }
         }
+
 
         Rectangle {
-        id: homebutton
+            id: navigationButtonContainer
 
-            visible: root.kidsOnly
-            anchors.fill: parent
-            color: focus ? theme.accent : "transparent"
-            radius: height / 2
-            anchors.verticalCenter: parent.verticalCenter
-            onFocusChanged: {
-                sfxNav.play()
-                root.mainListIndexRequested(focus ? -1 : 0)
-            }
+                anchors {
+                    top: parent.top
+                    topMargin: vpx(10)
+                    right: parent.right
+                    rightMargin: globalMargin
 
-            Text {
-                anchors.centerIn: parent
-                text: "Maxx Kids"
-                color: focus ? theme.accent : theme.text
-                font.family: fonts.subtitle.family.name
-                font.pixelSize: fonts.subtitle.pixelSize
-                font.bold: fonts.subtitle.bold
-            }
-
-            Keys.onDownPressed: root.mainListFocusRequested()
-            Keys.onPressed: {
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    root.homeRequested()
                 }
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true
-                    root.mainListFocusRequested()
-                }
-            }
+                width: root.kidsOnly ? vpx(144) : vpx(80)
+                height: vpx(40)
+                color: "transparent"
+            
+        
+        Rectangle {
+            id: kidsbutton
 
-            MouseArea {
+                visible: !root.kidsOnly
+                width: vpx(80)
+                height: vpx(40)
                 anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: homebutton.forceActiveFocus()
-                onExited: homebutton.focus = false
-                onClicked: root.homeRequested()
+                color: focus ? theme.accent : "transparent"
+                radius: height / 2
+                anchors.verticalCenter: parent.verticalCenter
+                onFocusChanged: {
+                    sfxNav.play()
+                    if (focus)
+                        root.featuredSnapRequested()
+                    root.mainListIndexRequested(focus ? -1 : 0)
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Maxx"
+                    color: focus ? theme.accent : theme.text
+                    font.family: fonts.subtitle.family.name
+                    font.pixelSize: fonts.subtitle.pixelSize
+                    font.bold: fonts.subtitle.bold
+                }
+
+                Keys.onDownPressed: root.mainListFocusRequested()
+                Keys.onPressed: {
+                    if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                        event.accepted = true
+                        root.kidsRequested()
+                    }
+                    if (api.keys.isCancel(event) && !event.isAutoRepeat) {
+                        event.accepted = true
+                        root.mainListFocusRequested()
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: settings.MouseHover == "Yes"
+                    onEntered: kidsbutton.forceActiveFocus()
+                    onExited: kidsbutton.focus = false
+                    onClicked: root.kidsRequested()
+                }
+            }
+
+            Rectangle {
+            id: homebutton
+
+                visible: root.kidsOnly
+                anchors.fill: parent
+                color: focus ? theme.accent : "transparent"
+                radius: height / 2
+                anchors.verticalCenter: parent.verticalCenter
+                onFocusChanged: {
+                    sfxNav.play()
+                    if (focus)
+                        root.featuredSnapRequested()
+                    root.mainListIndexRequested(focus ? -1 : 0)
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Maxx Kids"
+                    color: focus ? theme.accent : theme.text
+                    font.family: fonts.subtitle.family.name
+                    font.pixelSize: fonts.subtitle.pixelSize
+                    font.bold: fonts.subtitle.bold
+                }
+
+                Keys.onDownPressed: root.mainListFocusRequested()
+                Keys.onPressed: {
+                    if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                        event.accepted = true
+                        root.homeRequested()
+                    }
+                    if (api.keys.isCancel(event) && !event.isAutoRepeat) {
+                        event.accepted = true
+                        root.mainListFocusRequested()
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: settings.MouseHover == "Yes"
+                    onEntered: homebutton.forceActiveFocus()
+                    onExited: homebutton.focus = false
+                    onClicked: root.homeRequested()
+                }
             }
         }
-    }
 
+    }
     
 }

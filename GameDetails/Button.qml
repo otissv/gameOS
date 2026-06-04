@@ -39,7 +39,7 @@ id: root
         radius: height/2
         border.width: selected ? 0 : 2
         border.color: "white"
-        opacity: selected ? 1 : 0.2
+        opacity: selected ? 1 : 0.5
         
         Image {
         id: buttonicon
@@ -49,7 +49,6 @@ id: root
             height: parent.height - vpx(30)
             fillMode: Image.PreserveAspectFit
             asynchronous: true
-            //opacity: selected ? 1 : 0.2
             Behavior on opacity { NumberAnimation { duration: 100 } }
             scale: selected ? 1.2 : 1
             Behavior on scale { NumberAnimation { duration: 100 } }
@@ -67,7 +66,6 @@ id: root
             font.pixelSize: fonts.subtitle.pixelSize
             font.bold: fonts.subtitle.bold
             color: theme.text
-            //opacity: selected ? 1 : 0.2
             visible: text !== ""
             
             anchors { left: buttonicon.right; leftMargin: vpx(15) }

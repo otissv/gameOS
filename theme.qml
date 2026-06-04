@@ -411,9 +411,11 @@ id: root
             highlight:      "#f00980",
             text:           "#ececec",
             button:         "#f00980",
-            gradientstart:  "#2426291d",
-            gradientend:    "#FF0d111d",
-            border:         "#19FFFFFF"
+            gradientstart:  "#242629",
+            gradientend:    "transparent",
+            border:         "#19FFFFFF",
+            headerGradientSolid: '#a9000000',
+            headerGradientTransparent: "transparent",
         }
     }
 

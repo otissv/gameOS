@@ -19,6 +19,8 @@ import QtQuick 2.0
 Rectangle {
 id: root
 
+    z: 3
+
     anchors {
         left: parent.left
         right: parent.right
@@ -31,8 +33,8 @@ id: root
 
     height: vpx(70)
     gradient: Gradient {
-        GradientStop { position: 0.0; color: "transparent" }
-        GradientStop { position: 1.0; color: "#CC000000" }
+        GradientStop { position: 0.0; color: theme.headerGradientTransparent }
+        GradientStop { position: 1.0; color: theme.headerGradientSolid }
     }
 
     ListModel {
