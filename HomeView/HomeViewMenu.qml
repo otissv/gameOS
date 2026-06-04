@@ -682,21 +682,30 @@ id: root
             highlightMoveDuration: 100
             keyNavigationWraps: true
             
-            property int savedIndex: currentCollectionIndex
+            property int savedIndex: collectionToPlatformListIndex(currentCollectionIndex)
             onFocusChanged: {
-                if (focus)
+                if (focus) {
                     currentIndex = savedIndex;
-                else {
-                    savedIndex = currentIndex;
+                    if (savedIndex < 2)
+                        positionViewAtIndex(0, ListView.Begin);
+                    else
+                        positionViewAtIndex(savedIndex, ListView.Visible);
+                } else {
+                    if (currentIndex >= 0)
+                        savedIndex = currentIndex;
                     currentIndex = -1;
                 }
             }
 
-            Component.onCompleted: positionViewAtIndex(savedIndex, ListView.End)
+            Component.onCompleted: positionViewAtIndex(0, ListView.Begin)
 
-            model: api.collections.count
+            model: platformListCount
             delegate: Rectangle {
-                property var modelData: api.collections.get(index)
+                readonly property bool isGenre: platformListIsGenre(index)
+                readonly property bool isSettings: platformListIsSettings(index)
+                property var modelData: platformListIsCollection(index)
+                    ? api.collections.get(platformListToCollectionIndex(index))
+                    : null
                 property bool selected: ListView.isCurrentItem && platformlist.focus
                 width: (root.width - globalMargin * 2) / 7.0
                 height: width * settings.WideRatio
@@ -708,7 +717,9 @@ id: root
                 radius: vpx(10)
                 anchors.verticalCenter: parent.verticalCenter
 
-				property var platformFilename: Utils.processPlatformName(modelData.shortName)
+				property var platformFilename: modelData
+                    ? Utils.processPlatformName(modelData.shortName)
+                    : ""
 
                 Image {
                 id: collectionlogo
@@ -716,11 +727,16 @@ id: root
                     anchors.fill: parent
                     anchors.centerIn: parent
                     anchors.margins: vpx(15)
-                    source: "../assets/images/platform/" + platformFilename + ".png"
+                    source: isSettings
+                        ? "../assets/images/settingsicon.svg"
+                        : (platformFilename
+                            ? "../assets/images/platform/" + platformFilename + ".png"
+                            : "")
                     sourceSize: Qt.size(collectionlogo.width, collectionlogo.height)
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
                     smooth: true
+                    visible: !isGenre
                     opacity: selected ? 1 : 0.5
                     scale: selected ? 1.1 : 1
                     Behavior on scale { NumberAnimation { duration: 100 } }
@@ -729,7 +745,7 @@ id: root
                 Text {
                 id: platformname
 
-                    text: modelData.name
+                    text: isGenre ? "Games" : (isSettings ? "Settings" : modelData.name)
                     anchors { fill: parent; margins: vpx(10) }
                     color: theme.text
                     opacity: selected ? 1 : 0.2
@@ -739,8 +755,8 @@ id: root
                     font.bold: true
                     style: Text.Outline; styleColor: theme.main
 
-					// show text when there's no PNG logo
-					visible: collectionlogo.status == Image.Error
+					// show text when there's no PNG logo, or for genre tile
+					visible: isGenre || collectionlogo.status == Image.Error
                     anchors.centerIn: parent
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
@@ -757,14 +773,11 @@ id: root
                     onExited: {}
                     onClicked: {
                         if (selected)
-                        {
-                            currentCollectionIndex = index;
-                            softwareScreen();
-                        } else {
+                            activatePlatformListItem(index);
+                        else {
                             mainList.currentIndex = platformlist.ObjectModel.index;
                             platformlist.currentIndex = index;
                         }
-                        
                     }
                 }
             }
@@ -776,8 +789,7 @@ id: root
                 // Accept
                 if (api.keys.isAccept(event) && !event.isAutoRepeat) {
                     event.accepted = true;
-                    currentCollectionIndex = platformlist.currentIndex;
-                    softwareScreen();            
+                    activatePlatformListItem(platformlist.currentIndex);
                 }
             }
 

@@ -83,6 +83,40 @@ id: root
     property var currentCollection: api.collections.get(currentCollectionIndex)
     property var currentGame
 
+    // Platform list: genre first, collections, settings last
+    readonly property int platformListCount: api.collections.count + 2
+
+    function platformListIsGenre(index) {
+        return index === 0;
+    }
+
+    function platformListIsSettings(index) {
+        return index === platformListCount - 1;
+    }
+
+    function platformListIsCollection(index) {
+        return index > 0 && index < platformListCount - 1;
+    }
+
+    function platformListToCollectionIndex(platformIndex) {
+        return platformIndex - 1;
+    }
+
+    function collectionToPlatformListIndex(collectionIndex) {
+        return collectionIndex + 1;
+    }
+
+    function activatePlatformListItem(platformIndex) {
+        if (platformListIsGenre(platformIndex))
+            genreScreen();
+        else if (platformListIsSettings(platformIndex))
+            settingsScreen();
+        else {
+            currentCollectionIndex = platformListToCollectionIndex(platformIndex);
+            softwareScreen();
+        }
+    }
+
     // Stored variables for page navigation
     property int storedHomePrimaryIndex: 0
     property int storedHomeSecondaryIndex: 0
