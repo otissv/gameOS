@@ -181,6 +181,50 @@ id: root
     property int storedCollectionIndex: 0
     property int storedCollectionGameIndex: 0
 
+    // Metadata list navigation (genre / developer); survives loader teardown
+    property string lastMetadataListKey: "genreList"
+    property var metadataListStates: ({})
+
+    function defaultMetadataListState() {
+        return { categoryIndex: 0, gameIndexByCategory: { "0": 0 } }
+    }
+
+    function metadataListStateFor(key) {
+        var states = metadataListStates;
+        if (!states[key]) {
+            states[key] = defaultMetadataListState();
+            metadataListStates = states;
+        }
+        return states[key];
+    }
+
+    function gameIndexForMetadataCategory(key, categoryIndex) {
+        var entry = metadataListStateFor(key);
+        var byCat = entry.gameIndexByCategory;
+        if (!byCat)
+            return 0;
+        var idx = byCat[String(categoryIndex)];
+        return idx !== undefined ? idx : 0;
+    }
+
+    function setMetadataListState(key, categoryIndex, gameIndexByCategory) {
+        var states = metadataListStates;
+        states[key] = {
+            categoryIndex: categoryIndex,
+            gameIndexByCategory: gameIndexByCategory
+        };
+        metadataListStates = states;
+    }
+
+    function saveMetadataListNavigation(key, categoryIndex, gameIndex) {
+        var entry = metadataListStateFor(key);
+        var byCat = entry.gameIndexByCategory ? entry.gameIndexByCategory : { "0": 0 };
+        if (gameIndex >= 0)
+            byCat[String(categoryIndex)] = gameIndex;
+        setMetadataListState(key, categoryIndex, byCat);
+        lastMetadataListKey = key;
+    }
+
     // Reset the stored game index when changing collections
     onCurrentCollectionIndexChanged: {
         storedCollectionGameIndex = 0
@@ -295,6 +339,8 @@ id: root
         api.memory.set('storedHomeSecondaryIndex', storedHomeSecondaryIndex);
         api.memory.set('storedCollectionIndex', currentCollectionIndex);
         api.memory.set('storedCollectionGameIndex', storedCollectionGameIndex);
+        api.memory.set('lastMetadataListKey', lastMetadataListKey);
+        api.memory.set('metadataListStates', JSON.stringify(metadataListStates));
         api.memory.set('savedKidsView', kidsViewActive);
 
         const savedGameIndex = api.allGames.toVarArray().findIndex(g => g === game);
@@ -313,6 +359,10 @@ id: root
         storedHomeSecondaryIndex    = api.memory.get('storedHomeSecondaryIndex');
         currentCollectionIndex      = api.memory.get('storedCollectionIndex');
         storedCollectionGameIndex   = api.memory.get('storedCollectionGameIndex');
+        if (api.memory.has('lastMetadataListKey'))
+            lastMetadataListKey = api.memory.get('lastMetadataListKey');
+        if (api.memory.has('metadataListStates'))
+            metadataListStates = JSON.parse(api.memory.get('metadataListStates'));
         kidsViewActive              = api.memory.has('savedKidsView') ? api.memory.get('savedKidsView') : false;
 
         currentGame                 = api.allGames.get(api.memory.get('savedGame'));
@@ -327,6 +377,8 @@ id: root
         api.memory.unset('storedHomeSecondaryIndex');
         api.memory.unset('storedCollectionIndex');
         api.memory.unset('storedCollectionGameIndex');
+        api.memory.unset('lastMetadataListKey');
+        api.memory.unset('metadataListStates');
         api.memory.unset('savedKidsView');
 
         // Remove this one so we only have it when we come back from the game and not at Pegasus launch
@@ -457,7 +509,10 @@ id: root
     function genreScreen() {
         sfxAccept.play();
         lastState.push(state);
-        root.state = "genrescreen";
+        if (lastMetadataListKey === "developerList")
+            root.state = "developerscreen";
+        else
+            root.state = "genrescreen";
     }
 
     function developerScreen() {

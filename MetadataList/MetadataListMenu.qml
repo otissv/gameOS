@@ -15,8 +15,8 @@ FocusScope {
 id: root
 
     property var metadataTypes: [
-        { label: "GenreList", metadataKey: "genreList", listType: "genre" },
-        { label: "DeveloperList", metadataKey: "developerList", listType: "developer" }
+        { label: "Genre", metadataKey: "genreList", listType: "genre" },
+        { label: "Developer", metadataKey: "developerList", listType: "developer" }
     ]
     property int metadataTypeIndex: 0
     property string metadataKey: "genreList"
@@ -27,7 +27,60 @@ id: root
     }
 
     function gameActivated() {
+        persistMetadataListNavigation();
         gameDetails(currentList().currentGame(gamegrid.currentIndex));
+    }
+
+    function persistMetadataListNavigation() {
+        if (!navigationRestored)
+            return;
+        saveMetadataListNavigation(metadataKey, categoryList.currentIndex, gamegrid.currentIndex);
+    }
+
+    readonly property int activeGameModelCount: {
+        if (categoryList.currentIndex === 0)
+            return listAll.games.count;
+        if (listFiltered && listFiltered.games)
+            return listFiltered.games.count;
+        return 0;
+    }
+
+    function beginGameGridRestore() {
+        _pendingGameGridRestore = true;
+        gridRestoreTimer.attempts = 0;
+        gridRestoreTimer.start();
+        applySavedGameGridIndex();
+    }
+
+    function applySavedGameGridIndex() {
+        var idx = gameIndexForMetadataCategory(metadataKey, categoryList.currentIndex);
+        if (idx < 0)
+            idx = 0;
+        var modelCount = activeGameModelCount;
+        if (modelCount <= 0)
+            return;
+        var target = Math.min(idx, modelCount - 1);
+        if (gamegrid.currentIndex !== target)
+            gamegrid.currentIndex = target;
+        _pendingGameGridRestore = false;
+        gridRestoreTimer.stop();
+        if (gamegrid.currentIndex >= 0)
+            gamegrid.positionViewAtIndex(gamegrid.currentIndex, GridView.Visible);
+    }
+
+    function restoreMetadataListNavigation() {
+        metadataTypeIndex = metadataTypeIndexFor(metadataKey, listType);
+        activateFilterView("metadata:" + metadataKey);
+        var catIdx = metadataListStateFor(metadataKey).categoryIndex || 0;
+        _lastCategoryIndex = catIdx;
+        categoryList.currentIndex = catIdx;
+        sortedGames = null;
+        beginGameGridRestore();
+    }
+
+    function focusGameGridAtSavedIndex() {
+        applySavedGameGridIndex();
+        gamegrid.forceActiveFocus();
     }
 
     function metadataTypeIndexFor(metadataKeyValue, listTypeValue) {
@@ -44,25 +97,15 @@ id: root
         return metadataTypes[metadataTypeIndex] || metadataTypes[0];
     }
 
-    function applyMetadataType(index) {
-        if (metadataTypes.length === 0) {
-            return;
-        }
-
-        metadataTypeIndex = (index + metadataTypes.length) % metadataTypes.length;
-        metadataKey = currentMetadataType().metadataKey;
-        listType = currentMetadataType().listType;
-        activateFilterView("metadata:" + metadataKey);
-        storedCategoryIndex = 0;
-        storedCategoryGameIndex = 0;
-        categoryList.currentIndex = 0;
-        gamegrid.currentIndex = 0;
-        sortedGames = null;
-    }
-
     function cycleMetadataType() {
         sfxToggle.play();
-        applyMetadataType(metadataTypeIndex + 1);
+        persistMetadataListNavigation();
+        var nextIndex = (metadataTypeIndex + 1) % metadataTypes.length;
+        lastMetadataListKey = metadataTypes[nextIndex].metadataKey;
+        if (metadataTypes[nextIndex].listType === "developer")
+            developerScreen();
+        else
+            genreScreen();
     }
 
     property var sortedGames;
@@ -73,7 +116,39 @@ id: root
     property bool isLeftTriggerPressed: false;
     property bool isRightTriggerPressed: false;
 
-    Component.onCompleted: applyMetadataType(metadataTypeIndexFor(metadataKey, listType));
+    property bool navigationRestored: false
+    property bool _pendingGameGridRestore: false
+    property int _lastCategoryIndex: 0
+
+    Component.onCompleted: {
+        restoreMetadataListNavigation();
+        navigationRestored = true;
+        if (_pendingGameGridRestore)
+            beginGameGridRestore();
+    }
+
+    onActiveGameModelCountChanged: {
+        if (navigationRestored && _pendingGameGridRestore && activeGameModelCount > 0)
+            applySavedGameGridIndex();
+    }
+
+    Timer {
+        id: gridRestoreTimer
+        interval: 50
+        repeat: true
+        property int attempts: 0
+        onTriggered: {
+            if (!_pendingGameGridRestore) {
+                attempts = 0;
+                stop();
+                return;
+            }
+            applySavedGameGridIndex();
+            attempts++;
+            if (!_pendingGameGridRestore || attempts >= 40)
+                stop();
+        }
+    }
 
     Timer {
         id: letterScrollRepeatTimer
@@ -226,8 +301,6 @@ id: root
         return true;
     }
 
-    property int storedCategoryIndex: 0
-    property int storedCategoryGameIndex: 0
     property int numColumns: settings.GridColumns ? settings.GridColumns : 6
     property int titleMargin: settings.AlwaysShowTitles === "Yes" ? vpx(30) : 0
     property real categoryItemHeight: vpx(50)
@@ -333,7 +406,7 @@ id: root
             Rectangle {
                 anchors.fill: parent
                 radius: height / 2
-                color: metadataTypeButton.highlighted ? theme.accent : theme.text
+                color: metadataTypeButton.highlighted ? theme.accent : "transparent"
                 opacity: metadataTypeButton.highlighted ? 1 : 0.2
             }
 
@@ -398,8 +471,6 @@ id: root
             spacing: 0
             orientation: ListView.Vertical
             model: categoryNames
-            currentIndex: storedCategoryIndex
-
             anchors {
                 top: parent.top
                 bottom: parent.bottom
@@ -413,9 +484,23 @@ id: root
             highlightMoveDuration: 100
 
             onCurrentIndexChanged: {
-                storedCategoryIndex = currentIndex;
-                gamegrid.currentIndex = 0;
+                if (!navigationRestored) {
+                    _lastCategoryIndex = currentIndex;
+                    return;
+                }
+
+                if (_lastCategoryIndex !== currentIndex && gamegrid.currentIndex >= 0) {
+                    var entry = metadataListStateFor(metadataKey);
+                    var byCat = entry.gameIndexByCategory ? entry.gameIndexByCategory : { "0": 0 };
+                    byCat[String(_lastCategoryIndex)] = gamegrid.currentIndex;
+                    setMetadataListState(metadataKey, _lastCategoryIndex, byCat);
+                }
+
+                _lastCategoryIndex = currentIndex;
                 sortedGames = null;
+                var gameIdx = gameIndexForMetadataCategory(metadataKey, currentIndex);
+                saveMetadataListNavigation(metadataKey, currentIndex, gameIdx);
+                beginGameGridRestore();
             }
 
             delegate: Item {
@@ -443,8 +528,8 @@ id: root
                         right: parent.right; rightMargin: vpx(25)
                     }
                     color: highlighted ? theme.accent : theme.text
-                    font.family: fonts.subtitle.family.name
-                    font.pixelSize: fonts.subtitle.pixelSize
+                    font.family: fontStandard.subtitle.family.name
+                    font.pixelSize: fontStandard.subtitle.pixelSize
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
                     opacity: selected ? 1 : 0.2
@@ -471,15 +556,13 @@ id: root
             Keys.onDownPressed: { sfxNav.play(); incrementCurrentIndex() }
             Keys.onRightPressed: {
                 sfxNav.play();
-                gamegrid.forceActiveFocus();
-                gamegrid.currentIndex = 0;
+                focusGameGridAtSavedIndex();
             }
             Keys.onPressed: {
                 if (api.keys.isAccept(event) && !event.isAutoRepeat) {
                     event.accepted = true;
                     sfxAccept.play();
-                    gamegrid.forceActiveFocus();
-                    gamegrid.currentIndex = 0;
+                    focusGameGridAtSavedIndex();
                 }
                 if (api.keys.isCancel(event) && !event.isAutoRepeat) {
                     event.accepted = true;
@@ -522,9 +605,17 @@ id: root
                     }
                 }
 
-                Component.onCompleted: {
-                    currentIndex = storedCategoryGameIndex;
-                    positionViewAtIndex(currentIndex, GridView.Visible);
+                onCountChanged: {
+                    if (!navigationRestored || _pendingGameGridRestore)
+                        return;
+                    if (activeGameModelCount > 0 && (currentIndex < 0 || currentIndex >= count))
+                        beginGameGridRestore();
+                }
+
+                onCurrentIndexChanged: {
+                    if (!navigationRestored || currentIndex < 0 || _pendingGameGridRestore)
+                        return;
+                    saveMetadataListNavigation(metadataKey, categoryList.currentIndex, currentIndex);
                 }
 
                 anchors {
@@ -643,8 +734,7 @@ id: root
                 gameActivated();
             } else if (categoryList.focus) {
                 sfxAccept.play();
-                gamegrid.forceActiveFocus();
-                gamegrid.currentIndex = 0;
+                focusGameGridAtSavedIndex();
             } else {
                 categoryList.focus = true;
             }
@@ -654,7 +744,7 @@ id: root
         if (api.keys.isCancel(event) && !event.isAutoRepeat) {
             event.accepted = true;
             if (gamegrid.activeFocus) {
-                storedCategoryGameIndex = gamegrid.currentIndex;
+                persistMetadataListNavigation();
                 categoryList.focus = true;
             } else if (categoryList.focus) {
                 previousScreen();
@@ -678,6 +768,8 @@ id: root
             currentHelpbarModel = categoryHelpModel;
             if (!categoryList.focus && !gamegrid.focus)
                 categoryList.focus = true;
+        } else if (navigationRestored) {
+            persistMetadataListNavigation();
         }
     }
 }
