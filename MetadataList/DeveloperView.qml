@@ -8,7 +8,7 @@
 
 import QtQuick 2.3
 
-MetadataShowcaseView {
+MetadataListMenu {
     metadataKey: "developerList"
     listType: "developer"
 }

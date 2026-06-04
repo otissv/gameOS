@@ -18,12 +18,13 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.11
 import SortFilterProxyModel 0.2
 import QtMultimedia 5.9
-import "VerticalList"
+import "VerticalList" as VerticalList
 import "GridView"
 import "Global"
 import "GameDetails"
-import "ShowcaseView"
-import "Settings"
+import "HomeView" as HomeView
+import "MetadataList" as MetadataList
+import "Settings" as SettingsScreen
 import "utils.js" as Utils
 
 FocusScope {
@@ -478,13 +479,13 @@ id: root
     Component {
     id: showcaseview
 
-        ShowcaseViewMenu { focus: true; kidsOnly: false }
+        HomeView.HomeViewMenu { focus: true; kidsOnly: false }
     }
 
     Component {
     id: kidsview
 
-        ShowcaseViewMenu { focus: true; kidsOnly: true }
+        HomeView.HomeViewMenu { focus: true; kidsOnly: true }
     }
 
     Component {
@@ -496,7 +497,7 @@ id: root
     Component {
     id: listview
 
-        SoftwareListMenu { focus: true }
+        VerticalList.SoftwareListMenu { focus: true }
     }
 
     Component {
@@ -517,19 +518,19 @@ id: root
     Component {
     id: settingsview
 
-        SettingsScreen { focus: true }
+        SettingsScreen.SettingsScreen { focus: true }
     }
 
     Component {
     id: genreview
 
-        GenreView { focus: true }
+        MetadataList.GenreView { focus: true }
     }
 
     Component {
     id: developerview
 
-        DeveloperView { focus: true }
+        MetadataList.DeveloperView { focus: true }
     }
 
     

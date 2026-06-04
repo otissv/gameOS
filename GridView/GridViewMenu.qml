@@ -395,7 +395,7 @@ id: root
                 right: parent.right
                 bottom: parent.bottom
             }
-            height: vpx(120)
+            height: vpx(70)
             start: Qt.point(0, 0)
             end: Qt.point(0, height)
             gradient: Gradient {
@@ -405,23 +405,12 @@ id: root
         }
     }
 
-    Rectangle {
-    id: header
+    HeaderBar {
+    id: headerBar
 
-        anchors {
-            top:    parent.top
-            left:   parent.left
-            right:  parent.right
-        }
-        height: vpx(75)
-        color: "transparent"
         z: 5
+        anchors.fill: parent
 
-        HeaderBar {
-        id: headercontainer
-
-            anchors.fill: parent
-        }
         Keys.onDownPressed: {
             sfxNav.play();
             gamegrid.focus = true;
@@ -429,6 +418,7 @@ id: root
             resetHeroScroll();
         }
     }
+
 
     NumberAnimation {
     id: heroSnapAnim

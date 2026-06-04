@@ -32,308 +32,324 @@ id: root
         searchActive = !searchActive;
     }
 
-    LinearGradient {
-        id: headerScrim
+    Rectangle {
+    id: headerContainer
 
-        anchors.fill: parent
-        z: 0
-        start: Qt.point(0, 0)
-        end: Qt.point(0, height)
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#E6242629" }
-            GradientStop { position: 1.0; color: "#00242629" }
+        anchors {
+            top:    parent.top
+            left:   parent.left
+            right:  parent.right
         }
-    }
+        height: vpx(70)
+        color: "transparent"
 
-    Item {
-    id: container
+       
+    
 
-        anchors.fill: parent
-        z: 1
+        LinearGradient {
+            id: headerScrim
 
-        // Platform title
-        Text {
-        id: softwareplatformtitle
-            
-            text: titleText !== "" ? titleText : currentCollection.name
-            
-            anchors {
-                top:    parent.top;
-                left:   parent.left;    leftMargin: globalMargin
-                right:  parent.right
-                bottom: parent.bottom
+            anchors.fill: parent
+            z: 0
+            start: Qt.point(0, 0)
+            end: Qt.point(0, height)
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: '#110e11' }
+                GradientStop { position: 1.0; color: "#00242629" }
             }
-            
-            color: theme.text
-            font.family: titleFont.name
-            font.pixelSize: vpx(30)
-            font.bold: true
-            horizontalAlignment: Text.AlignHLeft
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-            visible: titleText !== "" || platformlogo.status == Image.Error
+        }  
 
-            // Mouse/touch functionality
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: previousScreen();
-            }
-        }
+        Item {
+        id: headerContent
 
-        ObjectModel {
-        id: headermodel
+            anchors.fill: parent
+            z: 1
 
-
-
-            // Search bar
-            Item {
-            id: searchbar
+            // Platform title
+            Text {
+            id: softwareplatformtitle
                 
-                property bool selected: ListView.isCurrentItem && root.focus
-                property bool mouseHovered: false
-                property bool highlighted: selected || mouseHovered
-                onSelectedChanged: if (!selected && searchActive) toggleSearch();
-
-                width: (searchActive || searchTerm != "") ? vpx(250) : height
-                height: vpx(40)
-
-                Behavior on width {
-                    PropertyAnimation { duration: 200; easing.type: Easing.OutQuart; easing.amplitude: 2.0; easing.period: 1.5 }
+                text: titleText !== "" ? titleText : currentCollection.name
+                
+                anchors {
+                    top:    parent.top;
+                    left:   parent.left;    leftMargin: globalMargin
+                    right:  parent.right
+                    bottom: parent.bottom
                 }
                 
-                Rectangle {
-                    width: parent.width
-                    height: parent.height
-                    color: searchbar.highlighted && !searchActive ? theme.accent : "white"
-                    radius: height/2
-                    opacity: searchbar.highlighted && !searchActive ? 1 : searchActive ? 0.4 : 0.2
-
-                }
-
-                Image {
-                id: searchicon
-
-                    width: height
-                    height: vpx(18)
-                    anchors { 
-                        left: parent.left; leftMargin: vpx(11)
-                        top: parent.top; topMargin: vpx(10)
-                    }
-                    source: "../assets/images/searchicon.svg"
-                    opacity: searchbar.highlighted && !searchActive ? 1 : searchActive ? 0.8 : 0.5
-                    asynchronous: true
-                }
-
-                TextInput {
-                id: searchInput
-                    
-                    anchors { 
-                        left: searchicon.right; leftMargin: vpx(10)
-                        top: parent.top; bottom: parent.bottom
-                        right: parent.right; rightMargin: vpx(15)
-                    }
-                    verticalAlignment: Text.AlignVCenter
-                    color: theme.text
-                    focus: searchbar.selected && searchActive
-                    font.family: subtitleFont.name
-                    font.pixelSize: vpx(18)
-                    clip: true
-                    text: searchTerm
-                    onTextEdited: {
-                        searchTerm = searchInput.text
-                    }
-                }
+                color: theme.text
+                font.family: titleFont.name
+                font.pixelSize: vpx(30)
+                font.bold: true
+                horizontalAlignment: Text.AlignHLeft
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+                visible: titleText !== "" || platformlogo.status == Image.Error
 
                 // Mouse/touch functionality
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !searchActive
                     hoverEnabled: true
-                    onEntered: searchbar.mouseHovered = true
-                    onExited: searchbar.mouseHovered = false
-                    onClicked: {
-                        if (!searchActive)
-                        {
-                            toggleSearch();
-                            searchInput.selectAll();
+                    onClicked: previousScreen();
+                }
+            }
+
+            ObjectModel {
+            id: headermodel
+
+
+
+                // Search bar
+                Item {
+                id: searchbar
+                    
+                    property bool selected: ListView.isCurrentItem && root.focus
+                    property bool mouseHovered: false
+                    property bool highlighted: selected || mouseHovered
+                    onSelectedChanged: if (!selected && searchActive) toggleSearch();
+
+                    width: (searchActive || searchTerm != "") ? vpx(250) : height
+                    height: vpx(40)
+
+                    Behavior on width {
+                        PropertyAnimation { duration: 200; easing.type: Easing.OutQuart; easing.amplitude: 2.0; easing.period: 1.5 }
+                    }
+                    
+                    Rectangle {
+                        width: parent.width
+                        height: parent.height
+                        color: searchbar.highlighted && !searchActive ? theme.accent : "white"
+                        radius: height/2
+                        opacity: searchbar.highlighted && !searchActive ? 1 : searchActive ? 0.4 : 0.2
+
+                    }
+
+                    Image {
+                    id: searchicon
+
+                        width: height
+                        height: vpx(18)
+                        anchors { 
+                            left: parent.left; leftMargin: vpx(11)
+                            top: parent.top; topMargin: vpx(10)
+                        }
+                        source: "../assets/images/searchicon.svg"
+                        opacity: searchbar.highlighted && !searchActive ? 1 : searchActive ? 0.8 : 0.5
+                        asynchronous: true
+                    }
+
+                    TextInput {
+                    id: searchInput
+                        
+                        anchors { 
+                            left: searchicon.right; leftMargin: vpx(10)
+                            top: parent.top; bottom: parent.bottom
+                            right: parent.right; rightMargin: vpx(15)
+                        }
+                        verticalAlignment: Text.AlignVCenter
+                        color: theme.text
+                        focus: searchbar.selected && searchActive
+                        font.family: subtitleFont.name
+                        font.pixelSize: vpx(18)
+                        clip: true
+                        text: searchTerm
+                        onTextEdited: {
+                            searchTerm = searchInput.text
+                        }
+                    }
+
+                    // Mouse/touch functionality
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: !searchActive
+                        hoverEnabled: true
+                        onEntered: searchbar.mouseHovered = true
+                        onExited: searchbar.mouseHovered = false
+                        onClicked: {
+                            if (!searchActive)
+                            {
+                                toggleSearch();
+                                searchInput.selectAll();
+                            }
+                        }
+                    }
+
+                    Keys.onPressed: {
+                        // Accept
+                        if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                            event.accepted = true;
+                            if (!searchActive) {
+                                toggleSearch();
+                                searchInput.selectAll();
+                            } else {
+                                searchInput.selectAll();
+                            }
                         }
                     }
                 }
 
-                Keys.onPressed: {
-                    // Accept
-                    if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                        event.accepted = true;
-                        if (!searchActive) {
-                            toggleSearch();
-                            searchInput.selectAll();
-                        } else {
-                            searchInput.selectAll();
+                // Ascending/descending
+                Item {
+                id: directionbutton
+
+                    property bool selected: ListView.isCurrentItem && root.focus
+                    property bool mouseHovered: false
+                    property bool highlighted: selected || mouseHovered
+                    width: directiontitle.contentWidth + vpx(30)
+                    height: searchbar.height
+
+                    Rectangle
+                    { 
+                        anchors.fill: parent
+                        radius: height/2
+                        color: theme.accent
+                        visible: directionbutton.highlighted
+                    }
+
+                    Text {
+                    id: directiontitle
+                        
+                        text: (orderBy === Qt.AscendingOrder) ? "Ascending" : "Descending"
+                                        
+                        color: theme.text
+                        font.family: subtitleFont.name
+                        font.pixelSize: vpx(18)
+                        anchors.centerIn: parent
+                        elide: Text.ElideRight
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: directionbutton.mouseHovered = true
+                        onExited: directionbutton.mouseHovered = false
+                        onClicked: toggleOrderBy();
+                    }
+
+                    Keys.onPressed: {
+                        // Accept
+                        if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                            event.accepted = true;
+                            toggleOrderBy();
                         }
                     }
                 }
-            }
 
-            // Ascending/descending
-            Item {
-            id: directionbutton
+                // Order by title
+                Item {
+                id: titlebutton
 
-                property bool selected: ListView.isCurrentItem && root.focus
-                property bool mouseHovered: false
-                property bool highlighted: selected || mouseHovered
-                width: directiontitle.contentWidth + vpx(30)
-                height: searchbar.height
+                    property bool selected: ListView.isCurrentItem && root.focus
+                    property bool mouseHovered: false
+                    property bool highlighted: selected || mouseHovered
+                    width: ordertitle.contentWidth + vpx(30)
+                    height: searchbar.height
 
-                Rectangle
-                { 
-                    anchors.fill: parent
-                    radius: height/2
-                    color: theme.accent
-                    visible: directionbutton.highlighted
-                }
-
-                Text {
-                id: directiontitle
-                    
-                    text: (orderBy === Qt.AscendingOrder) ? "Ascending" : "Descending"
-                                    
-                    color: theme.text
-                    font.family: subtitleFont.name
-                    font.pixelSize: vpx(18)
-                    anchors.centerIn: parent
-                    elide: Text.ElideRight
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onEntered: directionbutton.mouseHovered = true
-                    onExited: directionbutton.mouseHovered = false
-                    onClicked: toggleOrderBy();
-                }
-
-                Keys.onPressed: {
-                    // Accept
-                    if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                        event.accepted = true;
-                        toggleOrderBy();
+                    Rectangle
+                    { 
+                        anchors.fill: parent
+                        radius: height/2
+                        color: theme.accent
+                        visible: titlebutton.highlighted
                     }
-                }
-            }
 
-            // Order by title
-            Item {
-            id: titlebutton
-
-                property bool selected: ListView.isCurrentItem && root.focus
-                property bool mouseHovered: false
-                property bool highlighted: selected || mouseHovered
-                width: ordertitle.contentWidth + vpx(30)
-                height: searchbar.height
-
-                Rectangle
-                { 
-                    anchors.fill: parent
-                    radius: height/2
-                    color: theme.accent
-                    visible: titlebutton.highlighted
-                }
-
-                Text {
-                id: ordertitle
-                    
-                    text: "By " + sortByDisplay[sortByIndex]
-                                    
-                    color: theme.text
-                    font.family: subtitleFont.name
-                    font.pixelSize: vpx(18)
-                    anchors.centerIn: parent
-                    elide: Text.ElideRight
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onEntered: titlebutton.mouseHovered = true
-                    onExited: titlebutton.mouseHovered = false
-                    onClicked: cycleSort();
-                }
-
-                Keys.onPressed: {
-                    // Accept
-                    if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                        event.accepted = true;
-                        cycleSort();
+                    Text {
+                    id: ordertitle
+                        
+                        text: "By " + sortByDisplay[sortByIndex]
+                                        
+                        color: theme.text
+                        font.family: subtitleFont.name
+                        font.pixelSize: vpx(18)
+                        anchors.centerIn: parent
+                        elide: Text.ElideRight
                     }
-                }
-            }
-            
-            // Filters menu
-            Item {
-            id: filterbutton
 
-                property bool selected: ListView.isCurrentItem && root.focus
-                property bool mouseHovered: false
-                property bool highlighted: selected || mouseHovered
-                width: filtertitle.contentWidth + vpx(30)
-                height: searchbar.height
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: titlebutton.mouseHovered = true
+                        onExited: titlebutton.mouseHovered = false
+                        onClicked: cycleSort();
+                    }
 
-                Rectangle
-                { 
-                    anchors.fill: parent
-                    radius: height/2
-                    color: theme.accent
-                    visible: filterbutton.highlighted
+                    Keys.onPressed: {
+                        // Accept
+                        if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                            event.accepted = true;
+                            cycleSort();
+                        }
+                    }
                 }
                 
-                // Filter title
-                Text {
-                id: filtertitle
+                // Filters menu
+                Item {
+                id: filterbutton
+
+                    property bool selected: ListView.isCurrentItem && root.focus
+                    property bool mouseHovered: false
+                    property bool highlighted: selected || mouseHovered
+                    width: filtertitle.contentWidth + vpx(30)
+                    height: searchbar.height
+
+                    Rectangle
+                    { 
+                        anchors.fill: parent
+                        radius: height/2
+                        color: theme.accent
+                        visible: filterbutton.highlighted
+                    }
                     
-                    text: (showFavs) ? "Favorites" : "All games"
-                                    
-                    color: theme.text
-                    font.family: subtitleFont.name
-                    font.pixelSize: vpx(18)
-                    anchors.centerIn: parent
-                    elide: Text.ElideRight
-                }
+                    // Filter title
+                    Text {
+                    id: filtertitle
+                        
+                        text: (showFavs) ? "Favorites" : "All games"
+                                        
+                        color: theme.text
+                        font.family: subtitleFont.name
+                        font.pixelSize: vpx(18)
+                        anchors.centerIn: parent
+                        elide: Text.ElideRight
+                    }
 
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onEntered: filterbutton.mouseHovered = true
-                    onExited: filterbutton.mouseHovered = false
-                    onClicked: toggleFavs();
-                }
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: filterbutton.mouseHovered = true
+                        onExited: filterbutton.mouseHovered = false
+                        onClicked: toggleFavs();
+                    }
 
-                Keys.onPressed: {
-                    // Accept
-                    if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                        event.accepted = true;
-                        toggleFavs();
+                    Keys.onPressed: {
+                        // Accept
+                        if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                            event.accepted = true;
+                            toggleFavs();
+                        }
                     }
                 }
             }
-        }
 
-        // Buttons
-        ListView {
-        id: buttonbar
+            // Buttons
+            ListView {
+            id: buttonbar
 
-            focus: true
-            model: headermodel
-            spacing: vpx(10)
-            orientation: ListView.Horizontal
-            layoutDirection: Qt.RightToLeft
-            anchors {
-                right: parent.right; rightMargin: globalMargin
-                left: parent.left; top: parent.top; topMargin: vpx(15)
+                focus: true
+                model: headermodel
+                spacing: vpx(10)
+                orientation: ListView.Horizontal
+                layoutDirection: Qt.RightToLeft
+                anchors {
+                    right: parent.right; rightMargin: globalMargin
+                    left: parent.left; top: parent.top; topMargin: vpx(15)
+                }
+                
             }
             
         }
-        
+    
     }
 
 }
