@@ -42,9 +42,9 @@ id: infocontainer
         }
         
         color: theme.text
-        font.family: titleFont.name
-        font.pixelSize: vpx(44)
-        font.bold: true
+        font.family: fonts.title.family.name
+        font.pixelSize: fonts.title.pixelSize
+        font.bold: fonts.title.bold
         horizontalAlignment: Text.AlignHLeft
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
@@ -80,8 +80,8 @@ id: infocontainer
         Text {
             width: parent.width
             text: gameData && (gameData.summary || gameData.description) ? gameData.description || gameData.summary : "No description available"
-            font.pixelSize: vpx(16)
-            font.family: bodyFont.name
+            font.pixelSize: fonts.body.pixelSize
+            font.family: fonts.body.family.name
             color: theme.text
             elide: Text.ElideRight
             wrapMode: Text.WordWrap

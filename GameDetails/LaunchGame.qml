@@ -123,8 +123,8 @@ id: root
             text: "Press any button to return"//"Launching " + currentGame.title
             width: contentWidth
             height: contentHeight
-            font.family: titleFont.name
-            font.pixelSize: vpx(24)
+            font.family: fonts.title.family.name
+            font.pixelSize: fonts.title.pixelSize
             color: theme.text
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter

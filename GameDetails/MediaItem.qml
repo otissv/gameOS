@@ -57,8 +57,8 @@ id: root
                 text: isVideo ? "Video" : "Screenshot"
                 color: theme.text
                 font {
-                    family: subtitleFont.name
-                    pixelSize: vpx(14)
+                    family: fonts.subtitle.family.name
+                    pixelSize: fonts.subtitle.pixelSize
                     bold: true
                 }
                 elide: Text.ElideRight

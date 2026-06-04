@@ -466,9 +466,9 @@ id: root
                     color: theme.text
                     opacity: selected ? 1 : 0.2
                     Behavior on opacity { NumberAnimation { duration: 100 } }
-                    font.pixelSize: vpx(18)
-                    font.family: subtitleFont.name
-                    font.bold: true
+                    font.pixelSize: fonts.subtitle.pixelSize
+                    font.family: fonts.subtitle.family.name
+                    font.bold: fonts.subtitle.bold
                     style: Text.Outline; styleColor: theme.main
 
 					// show text when there's no PNG logo, or for genre tile

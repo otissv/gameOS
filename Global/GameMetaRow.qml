@@ -30,9 +30,9 @@ id: root
         }
 
         text: root.gameData ? root.gameData.title : ""
-        font.pixelSize: vpx(16)
-        font.family: subtitleFont.name
-        font.bold: true
+        font.pixelSize: fonts.subtitle.pixelSize
+        font.family: fonts.subtitle.family.name
+        font.bold: fonts.subtitle.bold
         color: theme.text
         visible: root.showTitle
     }
@@ -67,9 +67,9 @@ id: root
                 starCount: 5
                 starSize: vpx(16)
                 starSpacing: vpx(2)
-                fullColor: theme.text
+                fullColor: "orange"
                 emptyColor: Qt.rgba(1, 1, 1, 0.35)
-                starFontFamily: subtitleFont.name
+                starFontFamily: fonts.subtitle.family.name
             }
         }
 
@@ -97,32 +97,11 @@ id: root
             }
         } 
 
-        // Genre box
-        Text {
-            id: genretitle
-
-            width: contentWidth
-            height: parent.height
-            anchors {
-                left: agetext.right
-                leftMargin: root.dividerSpacing
-                top: parent.top; topMargin: vpx(10)
-                bottom: parent.bottom; bottomMargin: vpx(10)
-            }
-            verticalAlignment: Text.AlignVCenter
-            text: "Genre: "
-            font.pixelSize: vpx(16)
-            font.family: subtitleFont.name
-            font.bold: true
-            color: theme.text
-            visible: root.showGenre && root.hasGenre
-        }
-
         Text {
             id: genretext
 
             anchors {
-                left: genretitle.right
+                left: agetext.right
                 leftMargin: vpx(5)
                 right: parent.right
                 top: parent.top
@@ -131,8 +110,8 @@ id: root
 
             verticalAlignment: Text.AlignVCenter
             text: root.gameData ? Utils.formatGenres(root.gameData) : ""
-            font.pixelSize: vpx(16)
-            font.family: subtitleFont.name
+            font.pixelSize: fonts.body.pixelSize
+            font.family: fonts.body.family.name
             elide: Text.ElideRight
             color: theme.text
             visible: root.showGenre && root.hasGenre

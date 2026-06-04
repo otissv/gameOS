@@ -305,9 +305,9 @@ id: root
         }
         
         color: theme.text
-        font.family: titleFont.name
-        font.pixelSize: vpx(80)
-        font.bold: true
+        font.family: fonts.title.family.name
+        font.pixelSize: fonts.title.pixelSize
+        font.bold: fonts.title.bold
         horizontalAlignment: Text.AlignHLeft
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
@@ -436,9 +436,9 @@ id: root
             }
             
             color: theme.text
-            font.family: titleFont.name
-            font.pixelSize: vpx(30)
-            font.bold: true
+            font.family: fonts.title.family.name
+            font.pixelSize: fonts.title.pixelSize
+            font.bold: fonts.title.bold
             horizontalAlignment: Text.AlignHLeft
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight

@@ -59,8 +59,8 @@ id: root
             text: root.playersText
             visible: root.playerCount > 3
             width: visible ? implicitWidth : 0
-            font.pixelSize: vpx(16)
-            font.family: subtitleFont.name
+            font.pixelSize: fonts.body.pixelSize
+            font.family: fonts.body.family.name
             color: theme.text
             verticalAlignment: Text.AlignVCenter
         }

@@ -195,8 +195,8 @@ id: root
         text: modelData ? modelData.title : ''
         color: theme.text
         font {
-            family: subtitleFont.name
-            pixelSize: vpx(12)
+            family: fontStandard.subtitle.family.name
+            pixelSize: fonts.subtitle.pixelSize
             bold: true
         }
 
@@ -222,9 +222,9 @@ id: root
         color: theme.text
         scale: selected ? 1.1 : 1
         Behavior on opacity { NumberAnimation { duration: 100 } }
-        font.pixelSize: vpx(18)
-        font.family: subtitleFont.name
-        font.bold: true
+        font.pixelSize: fontStandard.subtitle.pixelSize
+        font.family: fontStandard.subtitle.family.name
+        font.bold: fontStandard.subtitle.bold
         style: Text.Outline; styleColor: theme.main
         visible: favelogo.status === Image.Null || favelogo.status === Image.Error
         anchors.centerIn: parent

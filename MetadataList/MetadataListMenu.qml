@@ -277,7 +277,7 @@ id: root
             antialiasing: true
             renderType: Text.NativeRendering
             font.hintingPreference: Font.PreferNoHinting
-            font.family: titleFont.name
+            font.family: fonts.title.family.name
             font.capitalization: Font.AllUppercase
             font.pixelSize: vpx(200)
             color: theme.text
@@ -341,8 +341,8 @@ id: root
 
                 text: currentMetadataType().label
                 color: theme.text
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(18)
+                font.family: fonts.subtitle.family.name
+                font.pixelSize: fonts.subtitle.pixelSize
                 anchors.centerIn: parent
                 elide: Text.ElideRight
             }
@@ -442,8 +442,8 @@ id: root
                         right: parent.right; rightMargin: vpx(25)
                     }
                     color: highlighted ? theme.accent : theme.text
-                    font.family: subtitleFont.name
-                    font.pixelSize: vpx(20)
+                    font.family: fonts.subtitle.family.name
+                    font.pixelSize: fonts.subtitle.pixelSize
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
                     opacity: selected ? 1 : 0.2

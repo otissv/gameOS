@@ -79,9 +79,9 @@ id: root
                 }
                 
                 color: theme.text
-                font.family: titleFont.name
-                font.pixelSize: vpx(30)
-                font.bold: true
+                font.family: fonts.title.family.name
+                font.pixelSize: fonts.title.pixelSize
+                font.bold: fonts.title.bold
                 horizontalAlignment: Text.AlignHLeft
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
@@ -150,8 +150,8 @@ id: root
                         verticalAlignment: Text.AlignVCenter
                         color: theme.text
                         focus: searchbar.selected && searchActive
-                        font.family: subtitleFont.name
-                        font.pixelSize: vpx(18)
+                        font.family: fonts.subtitle.family.name
+                        font.pixelSize: fonts.subtitle.pixelSize
                         clip: true
                         text: searchTerm
                         onTextEdited: {
@@ -213,8 +213,8 @@ id: root
                         text: (orderBy === Qt.AscendingOrder) ? "Ascending" : "Descending"
                                         
                         color: theme.text
-                        font.family: subtitleFont.name
-                        font.pixelSize: vpx(18)
+                        font.family: fonts.subtitle.family.name
+                        font.pixelSize: fonts.subtitle.pixelSize
                         anchors.centerIn: parent
                         elide: Text.ElideRight
                     }
@@ -260,8 +260,8 @@ id: root
                         text: "By " + sortByDisplay[sortByIndex]
                                         
                         color: theme.text
-                        font.family: subtitleFont.name
-                        font.pixelSize: vpx(18)
+                        font.family: fonts.subtitle.family.name
+                        font.pixelSize: fonts.subtitle.pixelSize
                         anchors.centerIn: parent
                         elide: Text.ElideRight
                     }
@@ -308,8 +308,8 @@ id: root
                         text: (showFavs) ? "Favorites" : "All games"
                                         
                         color: theme.text
-                        font.family: subtitleFont.name
-                        font.pixelSize: vpx(18)
+                        font.family: fonts.subtitle.family.name
+                        font.pixelSize: fonts.subtitle.pixelSize
                         anchors.centerIn: parent
                         elide: Text.ElideRight
                     }

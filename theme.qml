@@ -30,9 +30,7 @@ import "utils.js" as Utils
 FocusScope {
 id: root
 
-    FontLoader { id: titleFont; source: "assets/fonts/SourceSansPro-Bold.ttf" }
-    FontLoader { id: subtitleFont; source: "assets/fonts/OpenSans-Bold.ttf" }
-    FontLoader { id: bodyFont; source: "assets/fonts/OpenSans-Semibold.ttf" }
+
 
     // Load settings
     property var settings: {
@@ -70,10 +68,70 @@ id: root
             ShowcaseCollection5:           api.memory.has("Collection 5") ? api.memory.get("Collection 5") : "None",
             ShowcaseCollection5_Thumbnail: api.memory.has("Collection 5 - Thumbnail") ? api.memory.get("Collection 5 - Thumbnail") : "Wide",
             WideRatio:                     api.memory.has("Wide - Ratio") ? api.memory.get("Wide - Ratio") : "0.64",
-            TallRatio:                     api.memory.has("Tall - Ratio") ? api.memory.get("Tall - Ratio") : "0.66"
+            TallRatio:                     api.memory.has("Tall - Ratio") ? api.memory.get("Tall - Ratio") : "0.66",
+            Font:                          api.memory.has("Font") ? api.memory.get("Font") : "Retro"
             
         }
     }
+
+
+    // Fonts
+    FontLoader { id: standardTitleFont; source: "assets/fonts/SourceSansPro-Bold.ttf" }
+    FontLoader { id: standardSubtitleFont; source: "assets/fonts/OpenSans-Bold.ttf" }
+    FontLoader { id: bodyFont; source: "assets/fonts/OpenSans-Semibold.ttf" }
+
+    FontLoader { id: retroTitleFont; source: "assets/fonts/PressStart2P-Regular.ttf" }
+    FontLoader { id: retroSubtitleFont; source: "assets/fonts/PressStart2P-Regular.ttf" }
+
+
+    property var fontStandard: {
+        return {
+            title: {
+                family: standardTitleFont,
+                pixelSize: vpx(24),
+                bold: true
+            },
+            subtitle: {
+                family: standardSubtitleFont,
+                pixelSize: vpx(20),
+                bold: true
+            },
+            body: {
+                family: bodyFont,
+                pixelSize: vpx(16),
+                bold: false
+            }
+        }
+    }
+
+    property var fontRetro: {
+        return {
+                title: {
+                    family: retroTitleFont,
+                    pixelSize: vpx(20),
+                    bold: false
+                },
+                subtitle: {
+                    family: retroSubtitleFont,
+                    pixelSize: vpx(14),
+                    bold: false
+                },
+                body: {
+                    family: bodyFont,
+                    pixelSize: vpx(16),
+                    bold: false
+                }
+            }
+    }
+   
+    property var fonts: {
+        if (settings.Font === "Standard") {
+            return fontStandard
+        } else {
+            return fontRetro
+        }
+    }
+
 
     // Collections
     property int currentCollectionIndex: 0

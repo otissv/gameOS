@@ -313,7 +313,7 @@ id: root
             antialiasing: true
             renderType: Text.NativeRendering
             font.hintingPreference: Font.PreferNoHinting
-            font.family: titleFont.name
+            font.family: fonts.title.family.name
             font.capitalization: Font.AllUppercase
             font.pixelSize: vpx(200)
             color: theme.text

@@ -65,7 +65,7 @@ id: root
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         color: theme.text
-        font.pixelSize: vpx(16)
-        font.family: subtitleFont.name
+        font.pixelSize: fonts.body.pixelSize
+        font.family: font.body.title.name
     }
 }

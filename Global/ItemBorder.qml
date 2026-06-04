@@ -103,7 +103,7 @@ id: root
             text: modelData.title
             color: theme.text
             font {
-                family: subtitleFont.name
+                family: fonts.subtitle.family.name
                 pixelSize: vpx(14)
                 bold: true
             }

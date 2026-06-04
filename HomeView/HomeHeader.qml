@@ -39,20 +39,6 @@ id: root
     height: vpx(70)
     z: 10
 
-    Image {
-    id: logo
-
-        width: vpx(150)
-        anchors { left: parent.left; leftMargin: globalMargin }
-        source: "../assets/images/gameOS-logo.png"
-        sourceSize: Qt.size(parent.width, parent.height)
-        fillMode: Image.PreserveAspectFit
-        smooth: true
-        asynchronous: true
-        anchors.verticalCenter: parent.verticalCenter
-        visible: !root.ftueVisible
-    }
-
     Rectangle {
         id: navigationButtonContainer
 
@@ -86,9 +72,9 @@ id: root
                 anchors.centerIn: parent
                 text: "Maxx"
                 color: focus ? theme.accent : theme.text
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(14)
-                font.bold: true
+                font.family: fonts.subtitle.family.name
+                font.pixelSize: fonts.subtitle.pixelSize
+                font.bold: fonts.subtitle.bold
             }
 
             Keys.onDownPressed: root.mainListFocusRequested()
@@ -129,9 +115,9 @@ id: root
                 anchors.centerIn: parent
                 text: "Maxx Kids"
                 color: focus ? theme.accent : theme.text
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(14)
-                font.bold: true
+                font.family: fonts.subtitle.family.name
+                font.pixelSize: fonts.subtitle.pixelSize
+                font.bold: fonts.subtitle.bold
             }
 
             Keys.onDownPressed: root.mainListFocusRequested()

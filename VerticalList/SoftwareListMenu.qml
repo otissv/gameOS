@@ -135,8 +135,8 @@ id: root
                     }
                     
                     color: theme.text
-                    font.family: subtitleFont.name
-                    font.pixelSize: vpx(20)
+                    font.family: fonts.subtitle.family.name
+                    font.pixelSize: fonts.subtitle.pixelSize
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
                     opacity: selected ? 1 : 0.2

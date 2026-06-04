@@ -40,9 +40,9 @@ id: root
     id: collectiontitle
 
         text: collectionData.name
-        font.family: subtitleFont.name
-        font.pixelSize: vpx(18)
-        font.bold: true
+        font.family: fonts.subtitle.family.name
+        font.pixelSize: fonts.subtitle.pixelSize
+        font.bold: fonts.subtitle.bold
         color: theme.text
         opacity: root.focus ? 1 : 0.2
         anchors { left: parent.left; leftMargin: vpx(10) }

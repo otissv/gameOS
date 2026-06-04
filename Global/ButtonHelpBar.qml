@@ -32,8 +32,8 @@ id: root
             }
             Text { 
                 text: name
-                font.family: subtitleFont.name
-                font.pixelSize: vpx(16)
+                font.family: fonts.subtitle.family.name
+                font.pixelSize: fonts.subtitle.pixelSize
                 color: theme.text
                 height: parent.height
                 verticalAlignment: Text.AlignVCenter
