@@ -672,7 +672,7 @@ id: root
         preferredHighlightBegin: currentIndex === 0 ? 0 : header.height
         preferredHighlightEnd: currentIndex === 0 ? height : parent.height - (helpMargin * 2)
         snapMode: ListView.SnapOneItem
-        keyNavigationWraps: true
+        keyNavigationWraps: false
         currentIndex: storedHomePrimaryIndex
         onCurrentIndexChanged: {
             if (currentIndex === 0)

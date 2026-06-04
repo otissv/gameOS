@@ -23,10 +23,10 @@ id: root
     ListModel {
     id: settingsModel
 
-        /*ListElement {
-            settingName: "Game View"
-            setting: "Grid,Vertical List"
-        }*/
+        // ListElement {
+        //     settingName: "Game View"
+        //     setting: "Grid,Vertical List"
+        // }
         ListElement {
             settingName: "Allow video thumbnails"
             setting: "Yes,No"
@@ -131,7 +131,7 @@ id: root
         }
         ListElement {
             settingName: "Collection 5"
-            setting: "None, Top by Genre,Favorites,Recently Played,Most Played,Recommended,Top by Publisher"
+            setting: "Top by Genre,None,Favorites,Recently Played,Most Played,Recommended,Top by Publisher"
         }
         ListElement {
             settingName: "Collection 5 - Thumbnail"

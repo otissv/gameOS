@@ -35,42 +35,50 @@ id: root
     // Load settings
     property var settings: {
         return {
-            PlatformView:                  api.memory.has("Game View") ? api.memory.get("Game View") : "Grid",
-            GridThumbnail:                 api.memory.has("Grid Thumbnail") ? api.memory.get("Grid Thumbnail") : "Dynamic Wide",
-            GridColumns:                   api.memory.has("Number of columns") ? api.memory.get("Number of columns") : "3",
-            GameBackground:                api.memory.has("Game Background") ? api.memory.get("Game Background") : "Screenshot",
-            GameLogo:                      api.memory.has("Game Logo") ? api.memory.get("Game Logo") : "Show",
-            GameRandomBackground:          api.memory.has("Randomize Background") ? api.memory.get("Randomize Background") : "No",
-            GameBlurBackground:            api.memory.has("Blur Background") ? api.memory.get("Blur Background") : "No",
-            VideoPreview:                  api.memory.has("Video preview") ? api.memory.get("Video preview") : "Yes",
+     
+            // General settings
+            // PlatformView:                  api.memory.has("Game View") ? api.memory.get("Game View") : "Grid",
             AllowThumbVideo:               api.memory.has("Allow video thumbnails") ? api.memory.get("Allow video thumbnails") : "Yes",
             AllowThumbVideoAudio:          api.memory.has("Play video thumbnail audio") ? api.memory.get("Play video thumbnail audio") : "No",
             HideLogo:                      api.memory.has("Hide logo when thumbnail video plays") ? api.memory.get("Hide logo when thumbnail video plays") : "No",
-            HideButtonHelp:                api.memory.has("Hide button help") ? api.memory.get("Hide button help") : "No",
-            GridRandomHero:                api.memory.has("Random platform hero") ? api.memory.get("Random platform hero") : "No",
+            AnimateHighlight:              api.memory.has("Animate highlight") ? api.memory.get("Animate highlight") : "Yes",
             MouseHover:                    api.memory.has("Enable mouse hover") ? api.memory.get("Enable mouse hover") : "No",
             AlwaysShowTitles:              api.memory.has("Always show titles") ? api.memory.get("Always show titles") : "No",
             ShowAgeCategoryBadge:          api.memory.has("Show age category badge") ? api.memory.get("Show age category badge") : "Yes",
-            AnimateHighlight:              api.memory.has("Animate highlight") ? api.memory.get("Animate highlight") : "No",
-            AllowVideoPreviewAudio:        api.memory.has("Video preview audio") ? api.memory.get("Video preview audio") : "No",
-            ShowScanlines:                 api.memory.has("Show scanlines") ? api.memory.get("Show scanlines") : "Yes",
+            HideButtonHelp:                api.memory.has("Hide button help") ? api.memory.get("Hide button help") : "No",
+            
+
+            // Advanced settings
+            WideRatio:                     api.memory.has("Wide - Ratio") ? api.memory.get("Wide - Ratio") : "0.64",
+            TallRatio:                     api.memory.has("Tall - Ratio") ? api.memory.get("Tall - Ratio") : "0.66",
+            Font:                          api.memory.has("Font") ? api.memory.get("Font") : "Retro",
+
+            // Platform settings
+            GridThumbnail:                 api.memory.has("Grid Thumbnail") ? api.memory.get("Grid Thumbnail") : "Dynamic Wide",
+            GridColumns:                   api.memory.has("Number of columns") ? api.memory.get("Number of columns") : "4",
+
+
+            // Game settings
+            GameBackground:                api.memory.has("Game Background") ? api.memory.get("Game Background") : "Screenshot",
+            GameLogo:                      api.memory.has("Game Logo") ? api.memory.get("Game Logo") : "Show",
             DetailsDefault:                api.memory.has("Default to full details") ? api.memory.get("Default to full details") : "No",
+            VideoPreview:                  api.memory.has("Video preview") ? api.memory.get("Video preview") : "Yes",
+            AllowVideoPreviewAudio:        api.memory.has("Video preview audio") ? api.memory.get("Video preview audio") : "No",
+            GameRandomBackground:          api.memory.has("Randomize Background") ? api.memory.get("Randomize Background") : "Yes",
+            GameBlurBackground:            api.memory.has("Blur Background") ? api.memory.get("Blur Background") : "No",
+
+            // Home page settings
             ShowcaseColumns:               api.memory.has("Number of games showcased") ? api.memory.get("Number of games showcased") : "15",
-            ShowcaseFeaturedCollection:    api.memory.has("Featured collection") ? api.memory.get("Featured collection") : "Favorites",
             ShowcaseCollection1:           api.memory.has("Collection 1") ? api.memory.get("Collection 1") : "Recently Played",
             ShowcaseCollection1_Thumbnail: api.memory.has("Collection 1 - Thumbnail") ? api.memory.get("Collection 1 - Thumbnail") : "Wide",
-            ShowcaseCollection2:           api.memory.has("Collection 2") ? api.memory.get("Collection 2") : "Most Played",
+            ShowcaseCollection2:           api.memory.has("Collection 2") ? api.memory.get("Collection 2") : "Recommended",
             ShowcaseCollection2_Thumbnail: api.memory.has("Collection 2 - Thumbnail") ? api.memory.get("Collection 2 - Thumbnail") : "Tall",
             ShowcaseCollection3:           api.memory.has("Collection 3") ? api.memory.get("Collection 3") : "Top by Publisher",
             ShowcaseCollection3_Thumbnail: api.memory.has("Collection 3 - Thumbnail") ? api.memory.get("Collection 3 - Thumbnail") : "Wide",
-            ShowcaseCollection4:           api.memory.has("Collection 4") ? api.memory.get("Collection 4") : "Top by Genre",
+            ShowcaseCollection4:           api.memory.has("Collection 4") ? api.memory.get("Collection 4") : "Most Played",
             ShowcaseCollection4_Thumbnail: api.memory.has("Collection 4 - Thumbnail") ? api.memory.get("Collection 4 - Thumbnail") : "Tall",
-            ShowcaseCollection5:           api.memory.has("Collection 5") ? api.memory.get("Collection 5") : "None",
+            ShowcaseCollection5:           api.memory.has("Collection 5") ? api.memory.get("Collection 5") : "Top by Publisher",
             ShowcaseCollection5_Thumbnail: api.memory.has("Collection 5 - Thumbnail") ? api.memory.get("Collection 5 - Thumbnail") : "Wide",
-            WideRatio:                     api.memory.has("Wide - Ratio") ? api.memory.get("Wide - Ratio") : "0.64",
-            TallRatio:                     api.memory.has("Tall - Ratio") ? api.memory.get("Tall - Ratio") : "0.66",
-            Font:                          api.memory.has("Font") ? api.memory.get("Font") : "Retro"
-            
         }
     }
 
