@@ -22,8 +22,12 @@ id: root
     property string metadataKey: "genreList"
     property string listType: "genre"
 
+    function useAllGamesList() {
+        return headercontainer.searchInputFocused || categoryList.currentIndex === 0;
+    }
+
     function currentList() {
-        return categoryList.currentIndex === 0 ? listAll : listFiltered;
+        return useAllGamesList() ? listAll : listFiltered;
     }
 
     function gameActivated() {
@@ -38,7 +42,7 @@ id: root
     }
 
     readonly property int activeGameModelCount: {
-        if (categoryList.currentIndex === 0)
+        if (useAllGamesList())
             return listAll.games.count;
         if (listFiltered && listFiltered.games)
             return listFiltered.games.count;
@@ -633,7 +637,7 @@ id: root
                 displayMarginBeginning: cellHeight * 2
                 displayMarginEnd: cellHeight * 2
 
-                model: categoryList.currentIndex === 0 ? listAll.games : listFiltered.games
+                model: useAllGamesList() ? listAll.games : listFiltered.games
                 delegate: dynamicDelegate
 
                 Component {

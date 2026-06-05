@@ -24,6 +24,7 @@ FocusScope {
 id: root
 
     property bool searchActive
+    readonly property bool searchInputFocused: searchInput.activeFocus
     property string titleText: ""
 
     onFocusChanged: buttonbar.currentIndex = 0;
