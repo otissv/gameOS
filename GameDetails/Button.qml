@@ -15,6 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.0
+import "../utils.js" as Utils
 
 FocusScope {
 id: root
@@ -44,7 +45,7 @@ id: root
         Image {
         id: buttonicon
 
-            source: "../assets/images/icon_play.svg"
+            source: Utils.icon(settings.Theme, "play")
             width: parent.height - vpx(30)
             height: parent.height - vpx(30)
             fillMode: Image.PreserveAspectFit

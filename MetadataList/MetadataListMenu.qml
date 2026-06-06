@@ -15,8 +15,9 @@ FocusScope {
 id: root
 
     property var metadataTypes: [
-        { label: "Genre", metadataKey: "genreList", listType: "genre" },
-        { label: "Developer", metadataKey: "developerList", listType: "developer" }
+        { label: "Categories", metadataKey: "genreList", listType: "genre" },
+        { label: "Developers", metadataKey: "developerList", listType: "developer" },
+        { label: "Platforms", metadataKey: "platformList", listType: "platform" }
     ]
     property int metadataTypeIndex: 0
     property string metadataKey: "genreList"
@@ -101,15 +102,33 @@ id: root
         return metadataTypes[metadataTypeIndex] || metadataTypes[0];
     }
 
-    function cycleMetadataType() {
+    function selectMetadataType(index) {
+        if (index < 0 || index >= metadataTypes.length || index === metadataTypeIndex)
+            return;
+
         sfxToggle.play();
         persistMetadataListNavigation();
-        var nextIndex = (metadataTypeIndex + 1) % metadataTypes.length;
-        lastMetadataListKey = metadataTypes[nextIndex].metadataKey;
-        if (metadataTypes[nextIndex].listType === "developer")
+        var nextType = metadataTypes[index];
+        lastMetadataListKey = nextType.metadataKey;
+        if (nextType.listType === "developer")
             developerScreen();
+        else if (nextType.listType === "platform")
+            platformScreen();
         else
             genreScreen();
+    }
+
+    function focusMetadataTypeButton(index) {
+        var targetIndex = index;
+        if (targetIndex < 0 || targetIndex >= metadataTypes.length)
+            targetIndex = metadataTypeIndex;
+        var item = metadataTypeButtons[targetIndex];
+        if (item)
+            item.forceActiveFocus();
+    }
+
+    function focusLastMetadataTypeButton() {
+        focusMetadataTypeButton(metadataTypes.length - 1);
     }
 
     property var sortedGames;
@@ -123,6 +142,7 @@ id: root
     property bool navigationRestored: false
     property bool _pendingGameGridRestore: false
     property int _lastCategoryIndex: 0
+    property var metadataTypeButtons: ({})
 
     Component.onCompleted: {
         restoreMetadataListNavigation();
@@ -307,8 +327,8 @@ id: root
 
     property int numColumns: settings.GridColumns ? settings.GridColumns : 6
     property int titleMargin: settings.AlwaysShowTitles === "Yes" ? vpx(30) : 0
-    property real categoryItemHeight: vpx(50)
-    property var categoryNames: ["All Games"].concat(Utils.uniqueGameValues(metadataKey, isKidsView))
+    property real categoryItemHeight: settings.Theme === "Standard" ? vpx(50) : vpx(35)
+    property var categoryNames: ["All " + currentMetadataType().label].concat(Utils.uniqueGameValues(metadataKey, isKidsView))
 
     readonly property var listFiltered: listFilteredLoader.item
 
@@ -320,7 +340,9 @@ id: root
 
     Loader {
         id: listFilteredLoader
-        sourceComponent: listType === "developer" ? listDeveloperComponent : listGenreComponent
+        sourceComponent: listType === "developer"
+            ? listDeveloperComponent
+            : (listType === "platform" ? listPlatformComponent : listGenreComponent)
     }
 
     Component {
@@ -339,6 +361,16 @@ id: root
         ListDeveloper {
             max: api.allGames.count
             developer: categoryList.currentIndex > 0 ? categoryNames[categoryList.currentIndex] : ""
+            kidsOnly: isKidsView
+        }
+    }
+
+    Component {
+        id: listPlatformComponent
+
+        ListPlatform {
+            max: api.allGames.count
+            platform: categoryList.currentIndex > 0 ? categoryNames[categoryList.currentIndex] : ""
             kidsOnly: isKidsView
         }
     }
@@ -391,64 +423,95 @@ id: root
 
             anchors.fill: parent
             titleText: " "
+            onLeadingEdgeNavigation: root.focusLastMetadataTypeButton
         }
 
-        Item {
-        id: metadataTypeButton
+        Row {
+        id: metadataTypeNav
 
-            property bool mouseHovered: false
-            property bool highlighted: activeFocus || mouseHovered
-
-            width: metadataTypeTitle.contentWidth + vpx(30)
-            height: vpx(40)
+            spacing: vpx(10)
             anchors {
                 left: parent.left; leftMargin: globalMargin
                 verticalCenter: parent.verticalCenter
             }
             z: 1
 
-            Rectangle {
-                anchors.fill: parent
-                radius: height / 2
-                color: metadataTypeButton.highlighted ? theme.accent : "transparent"
-                opacity: metadataTypeButton.highlighted ? 1 : 0.2
-            }
+            Repeater {
+            id: metadataTypeRepeater
 
-            Text {
-            id: metadataTypeTitle
+                model: metadataTypes
 
-                text: currentMetadataType().label
-                color: theme.text
-                font.family: fonts.subtitle.family.name
-                font.pixelSize: fonts.subtitle.pixelSize
-                anchors.centerIn: parent
-                elide: Text.ElideRight
-            }
+                delegate: FocusScope {
+                    id: metadataTypeButton
 
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: metadataTypeButton.mouseHovered = true
-                onExited: metadataTypeButton.mouseHovered = false
-                onClicked: cycleMetadataType();
-            }
+                    property bool mouseHovered: false
+                    property bool selected: metadataTypeIndex === index
+                    property bool highlighted: activeFocus || mouseHovered
 
-            Keys.onPressed: {
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true;
-                    cycleMetadataType();
-                    return;
+                    Component.onCompleted: {
+                        var buttons = root.metadataTypeButtons;
+                        buttons[index] = metadataTypeButton;
+                        root.metadataTypeButtons = buttons;
+                    }
+
+                    width: metadataTypeTitle.contentWidth + vpx(30)
+                    height: vpx(40)
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: height / 2
+                        color: metadataTypeButton.highlighted ? theme.accent : "transparent"
+                        opacity: metadataTypeButton.selected ? 1 : (metadataTypeButton.highlighted ? 0.8 : 0.2)
+                    }
+
+                    Text {
+                    id: metadataTypeTitle
+
+                        text: modelData.label
+                        color: (metadataTypeButton.selected && metadataTypeButton.highlighted )? theme.text : metadataTypeButton.selected ? theme.accent : theme.text
+                        font.family: fonts.subtitle.family.name
+                        font.pixelSize: fonts.subtitle.pixelSize
+                        anchors.centerIn: parent
+                        elide: Text.ElideRight
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: metadataTypeButton.mouseHovered = true
+                        onExited: metadataTypeButton.mouseHovered = false
+                        onClicked: selectMetadataType(index)
+                    }
+
+                    Keys.onPressed: {
+                        if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+                            event.accepted = true;
+                            selectMetadataType(index);
+                            return;
+                        }
+                    }
+
+                    Keys.onDownPressed: {
+                        sfxNav.play();
+                        categoryList.focus = true;
+                    }
+
+                    Keys.onLeftPressed: {
+                        sfxNav.play();
+                        if (index > 0)
+                            root.metadataTypeButtons[index - 1].forceActiveFocus();
+                        else
+                            headercontainer.focusFilterButton();
+                    }
+
+                    Keys.onRightPressed: {
+                        sfxNav.play();
+                        if (index < metadataTypes.length - 1)
+                            root.metadataTypeButtons[index + 1].forceActiveFocus();
+                        else
+                            headercontainer.focusFilterButton();
+                    }
                 }
-            }
-
-            Keys.onDownPressed: {
-                sfxNav.play();
-                categoryList.focus = true;
-            }
-
-            Keys.onRightPressed: {
-                sfxNav.play();
-                headercontainer.focus = true;
             }
         }
 
@@ -532,8 +595,8 @@ id: root
                         right: parent.right; rightMargin: vpx(25)
                     }
                     color: highlighted ? theme.accent : theme.text
-                    font.family: fontStandard.subtitle.family.name
-                    font.pixelSize: fontStandard.subtitle.pixelSize
+                    font.family: fonts.subtitle.family.name
+                    font.pixelSize: fonts.subtitle.pixelSize
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
                     opacity: selected ? 1 : 0.2
@@ -553,7 +616,7 @@ id: root
             Keys.onUpPressed: {
                 sfxNav.play();
                 if (currentIndex === 0)
-                    metadataTypeButton.forceActiveFocus();
+                    focusMetadataTypeButton(metadataTypeIndex);
                 else
                     decrementCurrentIndex();
             }
@@ -586,11 +649,30 @@ id: root
             opacity: 0.1
         }
 
+        Text {
+        id: titleText
+            anchors {
+                top: parent.top
+                topMargin: vpx(10)
+                left: categoryList.right; leftMargin: globalMargin
+                right: parent.right
+            }
+
+            text: (categoryList.currentIndex > 0
+                ? categoryNames[categoryList.currentIndex]
+                : "All " + currentMetadataType().label) + " (" + activeGameModelCount + ")"
+            color: theme.text
+            font.family: fonts.subtitle.family.name
+            font.pixelSize: fonts.subtitle.pixelSize
+            elide: Text.ElideRight
+        }
+
         Item {
         id: gridContainer
 
             anchors {
-                top: parent.top
+                top: titleText.bottom
+                topMargin: globalMargin
                 bottom: parent.bottom
                 left: categoryList.right; leftMargin: globalMargin
                 right: parent.right

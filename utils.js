@@ -452,6 +452,46 @@ function gameHasDeveloper(game, developerName) {
   });
 }
 
+function platformListFromGame(game) {
+  if (!game)
+    return [];
+  var seen = {};
+  var list = [];
+  function addItems(items) {
+    items.forEach(function(item) {
+      var normalized = item === undefined || item === null ? "" : item.toString().trim();
+      var key = normalized.toLowerCase();
+      if (normalized.length && !seen[key]) {
+        seen[key] = true;
+        list.push(normalized);
+      }
+    });
+  }
+  if (game.platform)
+    addItems(parseDelimitedList(game.platform));
+  if (game.platformList && game.platformList.length)
+    game.platformList.forEach(function(p) { addItems(parseDelimitedList(p)); });
+  if ((!list.length || !game.platformList || !game.platformList.length) && game.collections && game.collections.count) {
+    for (var i = 0; i < game.collections.count; i++) {
+      var collection = game.collections.get(i);
+      if (collection && collection.name)
+        addItems([collection.name]);
+    }
+  }
+  return list;
+}
+
+function gameHasPlatform(game, platformName) {
+  if (!game || !platformName)
+    return false;
+  var target = platformName.toString().trim().toLowerCase();
+  if (!target)
+    return false;
+  return platformListFromGame(game).some(function(p) {
+    return p.toLowerCase() === target;
+  });
+}
+
 function uniqueGameValues(fieldName, kidsOnly) {
   const set = new Set();
   api.allGames.toVarArray().forEach(game => {
@@ -461,6 +501,8 @@ function uniqueGameValues(fieldName, kidsOnly) {
       genreListFromGame(game).forEach(v => set.add(v));
     } else if (fieldName === 'developerList') {
       developerListFromGame(game).forEach(v => set.add(v));
+    } else if (fieldName === 'platformList') {
+      platformListFromGame(game).forEach(v => set.add(v));
     } else if (game[fieldName]) {
       game[fieldName].forEach(v => set.add(v));
     }
@@ -471,6 +513,10 @@ function uniqueGameValues(fieldName, kidsOnly) {
 function uniqueValuesArray(fieldName, kidsOnly) {
   if (fieldName === 'genreList')
     return uniqueGameValues('genreList', kidsOnly);
+  if (fieldName === 'developerList')
+    return uniqueGameValues('developerList', kidsOnly);
+  if (fieldName === 'platformList')
+    return uniqueGameValues('platformList', kidsOnly);
   let arr = [];
   var allGames = api.allGames.toVarArray();
   for(var i=0;i<allGames.length;i++) {
@@ -558,3 +604,7 @@ function isKidsOnlyGame(game) {
   return ageCategory(ageRatingText(game)) === "Kids";
 }
 
+function icon(theme, name) {
+  return "../themes/" + theme.toLowerCase() + "/"  + name + ".svg"
+  
+}

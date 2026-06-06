@@ -69,7 +69,6 @@ id: root
                 starSpacing: vpx(2)
                 fullColor: "orange"
                 emptyColor: Qt.rgba(1, 1, 1, 0.35)
-                starFontFamily: fonts.subtitle.family.name
             }
         }
 

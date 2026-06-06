@@ -16,6 +16,7 @@
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.11
+import QtQuick.Window 2.2
 import SortFilterProxyModel 0.2
 import QtMultimedia 5.9
 import "VerticalList" as VerticalList
@@ -29,6 +30,26 @@ import "utils.js" as Utils
 
 FocusScope {
 id: root
+    focus: true
+
+    function toggleFullscreen() {
+        var appWindow = root.Window.window;
+        if (!appWindow)
+            return;
+
+        if (appWindow.visibility === Window.FullScreen)
+            appWindow.visibility = Window.Windowed;
+        else
+            appWindow.visibility = Window.FullScreen;
+    }
+
+    Keys.onPressed: {
+        if (event.key === Qt.Key_F11 && !event.isAutoRepeat) {
+            event.accepted = true;
+            sfxToggle.play();
+            toggleFullscreen();
+        }
+    }
 
 
 
@@ -51,7 +72,7 @@ id: root
             // Advanced settings
             WideRatio:                     api.memory.has("Wide - Ratio") ? api.memory.get("Wide - Ratio") : "0.64",
             TallRatio:                     api.memory.has("Tall - Ratio") ? api.memory.get("Tall - Ratio") : "0.66",
-            Font:                          api.memory.has("Font") ? api.memory.get("Font") : "Retro",
+            Theme:                         api.memory.has("Theme") ? api.memory.get("Theme") : "Retro",
 
             // Platform settings
             GridThumbnail:                 api.memory.has("Grid Thumbnail") ? api.memory.get("Grid Thumbnail") : "Dynamic Wide",
@@ -125,21 +146,20 @@ id: root
                     bold: false
                 },
                 body: {
-                    family: bodyFont,
-                    pixelSize: vpx(16),
+                    family: retroSubtitleFont,
+                    pixelSize: vpx(12),
                     bold: false
                 }
             }
     }
    
     property var fonts: {
-        if (settings.Font === "Standard") {
+        if (settings.Theme === "Standard") {
             return fontStandard
         } else {
             return fontRetro
         }
     }
-
 
     // Collections
     property int currentCollectionIndex: 0
@@ -450,6 +470,9 @@ id: root
             name: "developerscreen";
         },
         State {
+            name: "platformscreen";
+        },
+        State {
             name: "launchgamescreen";
         }
     ]
@@ -464,6 +487,8 @@ id: root
             activateFilterView("metadata:genreList")
         else if (state === "developerscreen")
             activateFilterView("metadata:developerList")
+        else if (state === "platformscreen")
+            activateFilterView("metadata:platformList")
         else if (activeFilterViewKey !== "")
             deactivateFilterView()
     }
@@ -521,6 +546,8 @@ id: root
         lastState.push(state);
         if (lastMetadataListKey === "developerList")
             root.state = "developerscreen";
+        else if (lastMetadataListKey === "platformList")
+            root.state = "platformscreen";
         else
             root.state = "genrescreen";
     }
@@ -529,6 +556,12 @@ id: root
         sfxAccept.play();
         lastState.push(state);
         root.state = "developerscreen";
+    }
+
+    function platformScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        root.state = "platformscreen";
     }
 
     function launchGameScreen() {
@@ -691,6 +724,19 @@ id: root
         asynchronous: true
     }
 
+    Loader  {
+    id: platformloader
+
+        focus: (root.state === "platformscreen")
+        active: opacity !== 0
+        opacity: focus ? 1 : 0
+        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
+
+        anchors.fill: parent
+        sourceComponent: platformview
+        asynchronous: true
+    }
+
     Component {
     id: showcaseview
 
@@ -746,6 +792,12 @@ id: root
     id: developerview
 
         MetadataList.DeveloperView { focus: true }
+    }
+
+    Component {
+    id: platformview
+
+        MetadataList.PlatformView { focus: true }
     }
 
     

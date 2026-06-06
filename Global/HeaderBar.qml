@@ -26,11 +26,23 @@ id: root
     property bool searchActive
     readonly property bool searchInputFocused: searchInput.activeFocus
     property string titleText: ""
+    property var onLeadingEdgeNavigation: null
+    readonly property int defaultButtonIndex: 0
+    readonly property int filterButtonIndex: headermodel.count - 1
 
-    onFocusChanged: buttonbar.currentIndex = 0;
+    onFocusChanged: if (focus) buttonbar.currentIndex = defaultButtonIndex;
 
     function toggleSearch() {
         searchActive = !searchActive;
+    }
+
+    function focusButton(index) {
+        root.focus = true;
+        buttonbar.currentIndex = Math.max(0, Math.min(index, headermodel.count - 1));
+    }
+
+    function focusFilterButton() {
+        focusButton(filterButtonIndex);
     }
 
     Rectangle {
@@ -87,13 +99,6 @@ id: root
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
                 visible: titleText !== "" || platformlogo.status == Image.Error
-
-                // Mouse/touch functionality
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: previousScreen();
-                }
             }
 
             ObjectModel {
@@ -197,11 +202,10 @@ id: root
                     property bool selected: ListView.isCurrentItem && root.focus
                     property bool mouseHovered: false
                     property bool highlighted: selected || mouseHovered
-                    width: directiontitle.contentWidth + vpx(30)
-                    height: searchbar.height
+                    width: settings.Theme === "Retro" ? vpx(40) : directiontitle.contentWidth + vpx(30)
+                    height: settings.Theme === "Retro" ? vpx(40) : searchbar.height
 
-                    Rectangle
-                    { 
+                    Rectangle { 
                         anchors.fill: parent
                         radius: height/2
                         color: theme.accent
@@ -218,6 +222,22 @@ id: root
                         font.pixelSize: fonts.subtitle.pixelSize
                         anchors.centerIn: parent
                         elide: Text.ElideRight
+                          visible: settings.Theme !== "Retro"
+                    }
+                    
+                    Image {
+                        id: directionicon
+                        source: Utils.icon(settings.Theme, (orderBy === Qt.AscendingOrder) ? "arrow-bar-down" : "arrow-bar-up")
+                        width: height
+                        height: showFavs ? vpx(20) : vpx(30)
+                        anchors { 
+                            right: parent.right
+                            rightMargin: showFavs ? vpx(10) : vpx(5)
+                            top: parent.top
+                            topMargin: showFavs ? vpx(10) : vpx(5)
+                        }
+
+                        visible: settings.Theme === "Retro"
                     }
 
                     MouseArea {
@@ -244,8 +264,11 @@ id: root
                     property bool selected: ListView.isCurrentItem && root.focus
                     property bool mouseHovered: false
                     property bool highlighted: selected || mouseHovered
-                    width: ordertitle.contentWidth + vpx(30)
-                    height: searchbar.height
+                    width: settings.Theme === "Retro" ? vpx(40) : ordertitle.contentWidth + vpx(30)
+                    height: settings.Theme === "Retro" ? vpx(40) : searchbar.height
+
+
+                  
 
                     Rectangle
                     { 
@@ -258,13 +281,42 @@ id: root
                     Text {
                     id: ordertitle
                         
-                        text: "By " + sortByDisplay[sortByIndex]
-                                        
+                        text: "By " + sortByDisplay[sortByIndex]                                        
                         color: theme.text
                         font.family: fonts.subtitle.family.name
                         font.pixelSize: fonts.subtitle.pixelSize
                         anchors.centerIn: parent
                         elide: Text.ElideRight
+                        visible: settings.Theme !== "Retro"
+
+                    }
+
+
+                    Image {
+                        id: titleicon
+                        source: Utils.icon(settings.Theme, sortByDisplay[sortByIndex]) 
+                        width: height
+                        height: showFavs ? vpx(20) : vpx(30)
+                        anchors { 
+                            right: parent.right
+                            rightMargin: showFavs ? vpx(10) : vpx(5)
+                            top: parent.top
+                            topMargin: showFavs ? vpx(10) : vpx(5)
+                        }
+
+                        visible: settings.Theme === "Retro" && (sortByDisplay[sortByIndex] !== "title" || sortByDisplay[sortByIndex] !== "rating") 
+                    }
+
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: sortByDisplay[sortByIndex] === "title" ? "T" : "\u2605"
+                        color: theme.text
+                        font.pixelSize: vpx(20)
+                        font.family: fonts.subtitle.family.name
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        visible: settings.Theme === "Retro" && (sortByDisplay[sortByIndex] === "title" || sortByDisplay[sortByIndex] === "rating" )
                     }
 
                     MouseArea {
@@ -291,16 +343,16 @@ id: root
                     property bool selected: ListView.isCurrentItem && root.focus
                     property bool mouseHovered: false
                     property bool highlighted: selected || mouseHovered
-                    width: filtertitle.contentWidth + vpx(30)
-                    height: searchbar.height
+                    width: settings.Theme === "Retro" ? vpx(40) : filtertitle.contentWidth + vpx(30) 
+                    height: settings.Theme === "Retro" ? vpx(40) : searchbar.height
 
-                    Rectangle
-                    { 
+                    Rectangle { 
                         anchors.fill: parent
                         radius: height/2
                         color: theme.accent
                         visible: filterbutton.highlighted
                     }
+                    
                     
                     // Filter title
                     Text {
@@ -313,8 +365,25 @@ id: root
                         font.pixelSize: fonts.subtitle.pixelSize
                         anchors.centerIn: parent
                         elide: Text.ElideRight
+                        visible: settings.Theme !== "Retro"
+                    }
+                    
+                    Image {
+                        id: filtericon
+                        source:  Utils.icon(settings.Theme, (showFavs)? "favicon" : "gamepad")
+                        width: height
+                        height: showFavs ? vpx(20) : vpx(30)
+                        anchors { 
+                            right: parent.right
+                            rightMargin: showFavs ? vpx(10) : vpx(5)
+                            top: parent.top
+                            topMargin: showFavs ? vpx(10) : vpx(5)
+                        }
+
+                        visible: settings.Theme === "Retro"
                     }
 
+                    
                     MouseArea {
                         anchors.fill: parent
                         hoverEnabled: true
@@ -328,6 +397,13 @@ id: root
                         if (api.keys.isAccept(event) && !event.isAutoRepeat) {
                             event.accepted = true;
                             toggleFavs();
+                        }
+                    }
+
+                    Keys.onLeftPressed: {
+                        if (root.onLeadingEdgeNavigation) {
+                            event.accepted = true;
+                            root.onLeadingEdgeNavigation();
                         }
                     }
                 }

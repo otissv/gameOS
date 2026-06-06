@@ -9,7 +9,7 @@ id: root
     property real starSpacing: 3
     property color fullColor: "#FFD700"
     property color emptyColor: "#6A6A6A"
-    property string starFontFamily: ""
+    property string starFontFamily: fonts.subtitle.family.name
 
     readonly property real clampedPercent: Math.max(0, Math.min(100, ratingPercent))
     readonly property real roundedStarValue: Math.round((clampedPercent / 100 * starCount) * 2) / 2

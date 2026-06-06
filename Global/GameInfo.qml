@@ -85,6 +85,7 @@ id: infocontainer
             color: theme.text
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
+            lineHeight: settings.Theme === "Standard" ? 1.0 : 1.7
         }
     }
     

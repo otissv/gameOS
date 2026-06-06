@@ -29,7 +29,7 @@ FocusScope {
 id: root
 
     property var game: api.allGames.get(0)
-    property string favIcon: game && game.favorite ? "../assets/images/icon_unheart.svg" : "../assets/images/icon_heart.svg"
+    property string favIcon: game && game.favorite ? Utils.icon(settings.Theme, "favicon") : Utils.icon(settings.Theme, "favempty")
     property string collectionName: game ? game.collections.get(0).name : ""
     property string collectionShortName: game ? game.collections.get(0).shortName : ""
     property bool iamsteam: game ? (collectionShortName == "steam") : false
@@ -463,7 +463,7 @@ id: root
         Button { 
         id: button1 
 
-            text: "Play game"
+            text: "Play now"
             height: parent.height
             selected: ListView.isCurrentItem && menu.focus
             onHighlighted: { menu.currentIndex = ObjectModel.index; content.currentIndex = 0; }
@@ -517,7 +517,7 @@ id: root
         id: button4
 
             //text: "Back"
-            icon: "../assets/images/icon_back.svg"
+            icon: Utils.icon(settings.Theme, "back")
             height: parent.height
             selected: ListView.isCurrentItem && menu.focus
             onHighlighted: { menu.currentIndex = ObjectModel.index; content.currentIndex = 0; }

@@ -16,6 +16,7 @@
 
 import QtQuick 2.8
 import QtGraphicalEffects 1.12
+import "../utils.js" as Utils
 
 Item {
 id: root
@@ -248,7 +249,7 @@ id: root
         color: theme.accent
         visible: gameData.favorite
         Image {
-            source: "../assets/images/favicon.svg"
+            source: Utils.icon(settings.Theme, "favicon")
             asynchronous: true
             anchors.fill: parent
             anchors.margins: parent.width / 6

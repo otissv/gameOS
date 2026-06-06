@@ -1,5 +1,7 @@
 import QtQuick 2.8
 
+import "../utils.js" as Utils
+
 Item {
 id: root
 
@@ -9,10 +11,10 @@ id: root
     readonly property int playerCount: resolvePlayerCount(playersText)
     readonly property string iconSource: {
         if (playerCount <= 1)
-            return "../assets/images/player-sinlge.svg";
+            return Utils.icon(settings.Theme, "player-single");
         if (playerCount === 2)
-            return "../assets/images/player-coop.svg";
-        return "../assets/images/player-multi.svg";
+            return Utils.icon(settings.Theme, "player-coop");
+        return Utils.icon(settings.Theme, "player-multi");
     }
 
     visible: playersText !== ""
