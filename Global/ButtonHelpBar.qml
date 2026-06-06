@@ -20,6 +20,34 @@ import QtQuick.Layouts 1.11
 Item {
 id: root
 
+
+    property var layout1: {
+        return {
+            "accept": api.keys.accept,
+            "cancel": api.keys.cancel,
+            "details": api.keys.details,
+            "filters": api.keys.filters,
+            "nextPage": api.keys.nextPage,
+            "pageDown": api.keys.pageDown,
+            "pageUp": api.keys.pageUp,
+            "prevPage": api.keys.prevPage,
+        }
+    }
+    property var layout2: {
+        return {
+            "accept": api.keys.cancel,
+            "cancel": api.keys.accept,
+            "details": api.keys.filters,
+            "filters": api.keys.details,
+            "nextPage": api.keys.nextPage,
+            "pageDown": api.keys.pageDown,
+            "pageUp": api.keys.pageUp,
+            "prevPage": api.keys.prevPage,
+        }
+    }
+
+    property var layout: settings.ControlLayout === "Layout 1" ? layout1 : layout2;
+
     Component {
         id: buttonhelpDelegate
         Row {
@@ -58,31 +86,31 @@ id: root
         var buttonModel;
         switch (button) {
             case "accept":
-            buttonModel = api.keys.accept;
+            buttonModel = layout.accept;
             break;
             case "cancel":
-            buttonModel = api.keys.cancel;
+            buttonModel = layout.cancel;
             break;
             case "filters":
-            buttonModel = api.keys.filters;
+            buttonModel = layout.filters;
             break;
             case "details":
-            buttonModel = api.keys.details;
+            buttonModel = layout.details;
             break;
             case "nextPage":
-            buttonModel = api.keys.nextPage;
+            buttonModel = layout.nextPage;
             break;
             case "prevPage":
-            buttonModel = api.keys.prevPage;
+            buttonModel = layout.prevPage;
             break;
             case "pageUp":
-            buttonModel = api.keys.pageUp;
+            buttonModel = layout.pageUp;
             break;
             case "pageDown":
-                buttonModel = api.keys.pageDown;
+                buttonModel = layout.pageDown;
                 break;
             default:
-            buttonModel = api.keys.accept;
+            buttonModel = layout.accept;
         }
 
         var i;

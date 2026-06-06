@@ -66,6 +66,7 @@ id: root
             MouseHover:                    api.memory.has("Enable mouse hover") ? api.memory.get("Enable mouse hover") : "No",
             AlwaysShowTitles:              api.memory.has("Always show titles") ? api.memory.get("Always show titles") : "No",
             ShowAgeCategoryBadge:          api.memory.has("Show age category badge") ? api.memory.get("Show age category badge") : "Yes",
+            ControlLayout:                 api.memory.has("Control Layout") ? api.memory.get("Control Layout") : "Layout 1",
             HideButtonHelp:                api.memory.has("Hide button help") ? api.memory.get("Hide button help") : "No",
             
 

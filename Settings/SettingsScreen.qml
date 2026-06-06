@@ -58,6 +58,10 @@ id: root
             setting: "Yes,No"
         }
         ListElement {
+            settingName: "Control Layout"
+            setting: "Layout 1,Layout 2"
+        }
+        ListElement {
             settingName: "Hide button help"
             setting: "No,Yes"
         }
