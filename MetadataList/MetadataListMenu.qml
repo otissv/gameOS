@@ -69,7 +69,9 @@ id: root
             gamegrid.currentIndex = target;
         _pendingGameGridRestore = false;
         gridRestoreTimer.stop();
-        if (gamegrid.currentIndex >= 0)
+        if (gamegrid.currentIndex === 0)
+            gamegrid.contentY = 0;
+        else if (gamegrid.currentIndex > 0)
             gamegrid.positionViewAtIndex(gamegrid.currentIndex, GridView.Visible);
     }
 
@@ -415,7 +417,7 @@ id: root
             right: parent.right
         }
         height: vpx(75)
-        color: "transparent"
+        color:  theme.main
         z: 5
 
         HeaderBar {
@@ -638,43 +640,13 @@ id: root
             }
         }
 
-        Rectangle {
-            anchors {
-                left: categoryList.right
-                top: categoryList.top
-                bottom: categoryList.bottom
-            }
-            width: vpx(1)
-            color: theme.text
-            opacity: 0.1
-        }
-
-        Text {
-        id: titleText
-            anchors {
-                top: parent.top
-                topMargin: vpx(10)
-                left: categoryList.right; leftMargin: globalMargin
-                right: parent.right
-            }
-
-            text: (categoryList.currentIndex > 0
-                ? categoryNames[categoryList.currentIndex]
-                : "All " + currentMetadataType().label) + " (" + activeGameModelCount + ")"
-            color: theme.text
-            font.family: fonts.subtitle.family.name
-            font.pixelSize: fonts.subtitle.pixelSize
-            elide: Text.ElideRight
-        }
-
         Item {
         id: gridContainer
 
             anchors {
-                top: titleText.bottom
-                topMargin: globalMargin
+                top: parent.top
                 bottom: parent.bottom
-                left: categoryList.right; leftMargin: globalMargin
+                left: categoryList.right;
                 right: parent.right
             }
 
@@ -701,6 +673,8 @@ id: root
                 onCurrentIndexChanged: {
                     if (!navigationRestored || currentIndex < 0 || _pendingGameGridRestore)
                         return;
+                    if (currentIndex === 0)
+                        contentY = 0;
                     saveMetadataListNavigation(metadataKey, categoryList.currentIndex, currentIndex);
                 }
 
@@ -785,6 +759,8 @@ id: root
                 Keys.onRightPressed:    { sfxNav.play(); moveCurrentIndexRight() }
             }
         }
+
+       
     }
 
     Keys.onReleased: {
@@ -855,7 +831,7 @@ id: root
         helpModel: ListModel {
             ListElement { name: "Back"; button: "cancel" }
             ListElement { name: "Toggle favorite"; button: "details" }
-            ListElement { name: "View details"; button: "accept" }
+            ListElement { name: "Select"; button: "accpet" }
         }
     }
 

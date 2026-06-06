@@ -21,39 +21,38 @@ Item {
 id: root
 
 
-    property var layout1: {
-        return {
-            "accept": api.keys.accept,
-            "cancel": api.keys.cancel,
-            "details": api.keys.details,
-            "filters": api.keys.filters,
-            "nextPage": api.keys.nextPage,
-            "pageDown": api.keys.pageDown,
-            "pageUp": api.keys.pageUp,
-            "prevPage": api.keys.prevPage,
+    function buttonLayout(controlLayout) {
+        if (controlLayout === "Layout 1") {
+            return {
+                "accept": api.keys.accept,
+                "cancel": api.keys.cancel,
+                "filters": api.keys.filters,
+                "details": api.keys.details,
+                "nextPage": api.keys.nextPage,
+                "prevPage": api.keys.prevPage,
+                "pageUp": api.keys.pageUp,
+                "pageDown": api.keys.pageDown,
+            }
         }
-    }
-    property var layout2: {
-        return {
-            "accept": api.keys.cancel,
-            "cancel": api.keys.accept,
-            "details": api.keys.filters,
-            "filters": api.keys.details,
-            "nextPage": api.keys.nextPage,
-            "pageDown": api.keys.pageDown,
-            "pageUp": api.keys.pageUp,
-            "prevPage": api.keys.prevPage,
-        }
-    }
 
-    property var layout: settings.ControlLayout === "Layout 1" ? layout1 : layout2;
+        return {
+            "cancel": api.keys.accept,
+            "accept": api.keys.cancel,
+            "filters": api.keys.details,
+            "details": api.keys.filters,
+            "nextPage": api.keys.nextPage,
+            "prevPage": api.keys.prevPage,
+            "pageUp": api.keys.pageUp,
+            "pageDown": api.keys.pageDown,
+        }
+    }
 
     Component {
         id: buttonhelpDelegate
         Row {
             spacing: 10
             Image {
-                source: "../assets/images/controller/" + processButtonArt(button) + ".png"
+                source: "../assets/images/controller/" + processButtonArt(button, settings.ControlLayout) + ".png"
                 width: vpx(30)
                 height: vpx(30)
                 asynchronous: true
@@ -82,7 +81,8 @@ id: root
 
     // Processes the button and will display the correct art based on the button mappings set in Pegasus
     // Necessary as we can't use script in the ListModel
-    function processButtonArt(button) {
+    function processButtonArt(button, controlLayout) {
+        var layout = buttonLayout(controlLayout);
         var buttonModel;
         switch (button) {
             case "accept":

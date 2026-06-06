@@ -48,6 +48,8 @@ id: root
     Rectangle {
     id: headerContainer
 
+
+    
         anchors {
             top:    parent.top
             left:   parent.left
